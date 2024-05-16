@@ -1,4 +1,4 @@
-﻿namespace SortVisualizer;
+namespace SortVisualizer;
 
 public class Visualizer
 {
