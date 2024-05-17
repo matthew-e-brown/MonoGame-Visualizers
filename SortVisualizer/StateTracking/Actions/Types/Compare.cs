@@ -1,4 +1,4 @@
-namespace SortVisualizer.Actions;
+namespace SortVisualizer.StateTracking.Actions;
 
 public enum CompareMode
 {

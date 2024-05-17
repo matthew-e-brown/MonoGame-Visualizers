@@ -1,4 +1,4 @@
-namespace SortVisualizer;
+namespace SortVisualizer.StateTracking;
 
 /// <summary>
 /// A wrapper for an array that keeps track of all actions performed on its elements.

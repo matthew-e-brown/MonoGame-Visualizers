@@ -1,6 +1,6 @@
-namespace SortVisualizer;
+namespace SortVisualizer.StateTracking;
 
-using SortVisualizer.Actions;
+using SortVisualizer.StateTracking.Actions;
 
 /// <summary>
 /// A special wrapper for a plain-old integer value from inside a visualizer list.

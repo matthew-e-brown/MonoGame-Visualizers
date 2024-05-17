@@ -1,4 +1,4 @@
-namespace SortVisualizer;
+namespace SortVisualizer.StateTracking;
 
 // Just imagining all this heap allocation is making me sad. I miss Rust enums. :(
 

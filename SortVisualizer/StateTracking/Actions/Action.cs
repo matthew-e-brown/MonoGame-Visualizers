@@ -1,4 +1,4 @@
-namespace SortVisualizer.Actions;
+namespace SortVisualizer.StateTracking.Actions;
 
 /// <summary>
 /// An operation that the user has performed on the list of values throughout the sort.

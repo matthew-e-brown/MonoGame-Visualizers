@@ -1,6 +1,7 @@
 namespace SortVisualizer;
 
-using SortVisualizer.Actions;
+using SortVisualizer.StateTracking;
+using SortVisualizer.StateTracking.Actions;
 using Microsoft.Xna.Framework;
 
 

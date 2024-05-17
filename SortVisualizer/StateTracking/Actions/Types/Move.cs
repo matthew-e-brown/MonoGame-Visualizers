@@ -1,4 +1,4 @@
-namespace SortVisualizer.Actions;
+namespace SortVisualizer.StateTracking.Actions;
 
 /// <summary>
 /// An item has been moved from one location in the visualizer to another.
