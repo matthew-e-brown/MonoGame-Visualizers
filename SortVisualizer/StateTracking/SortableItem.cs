@@ -14,28 +14,83 @@ public class SortableItem :
     IEquatable<int>
 {
     /// <summary>
-    /// What value this item actually represents.
+    /// What value this item actually represents (the height of its box in the visualizer). This value is internal; the
+    /// end-user cannot see it. Instead, they can compare this object directly with an integer (that operation will be
+    /// tracked).
     /// </summary>
-    protected internal int Value { get; init; }
+    public int Value { get; }
 
     /// <summary>
     /// Where this item currently lies in the visualizer.
     /// </summary>
-    protected internal Location Location { get; set; }
+    protected internal Location Location;
 
-    protected Visualizer Parent { get; }
+    /// <summary>
+    /// A pointer to the parent visualizer to allow this item to insert things into history.
+    /// </summary>
+    protected readonly TrackedArray Parent;
 
     // ----------------------------------------
 
-    protected internal SortableItem(Visualizer parent, int value, Location location)
+    #region Constructors
+
+    /// <summary>
+    /// Creates a brand new <c>SortableItem</c> at a given location.
+    /// </summary>
+    /// <param name="parent">Which visualizer this item belongs to.</param>
+    /// <param name="value">What integer value this item represents.</param>
+    /// <param name="location">Where in the visualizer this item is located.</param>
+    protected internal SortableItem(TrackedArray parent, int value, Location location)
     {
         Value = value;
         Location = location;
         Parent = parent;
     }
 
-    protected internal SortableItem(Visualizer parent, int value, int index) : this(parent, value, new ListIndex(index))
+    /// <summary>
+    /// Creates a new <c>SortableItem</c> with the same value as an old one in a new location.
+    /// </summary>
+    /// <param name="oldItem">The <c>SortableItem</c> to copy.</param>
+    /// <param name="newLocation">Where this new item is located in the visualizer.</param>
+    protected internal SortableItem(SortableItem oldItem, Location newLocation) : this(oldItem.Parent, oldItem.Value, newLocation)
     { }
+
+    /// <summary>
+    /// Creates a brand new <c>SortableItem</c> at a given index in the main visualizer array.
+    /// </summary>
+    /// <param name="parent">Which visualizer this item belongs to.</param>
+    /// <param name="value">What integer value this item represents.</param>
+    /// <param name="index">Which index in the main array this item is being placed.</param>
+    protected internal SortableItem(TrackedArray parent, int value, int index) : this(parent, value, new ArrayIndex(index))
+    { }
+
+    /// <summary>
+    /// Creates a new <c>SortableItem</c> with the same value as an old one at a given index in the main visualizer
+    /// array.
+    /// </summary>
+    /// <param name="oldItem">The <c>SortableItem</c> to copy.</param>
+    /// <param name="newIndex">Where in the main array this item is being placed.</param>
+    protected internal SortableItem(SortableItem oldItem, int newIndex) : this(oldItem, new ArrayIndex(newIndex))
+    { }
+
+    /// <summary>
+    /// Creates a brand new <c>SortableItem</c> in a given temporary slot.
+    /// </summary>
+    /// <param name="parent">Which visualizer this item belongs to.</param>
+    /// <param name="value">What integer value this item represents.</param>
+    /// <param name="slotName">Which of the temporary slots to insert this item into.</param>
+    protected internal SortableItem(TrackedArray parent, int value, string slotName) : this(parent, value, new TempSlot(slotName))
+    { }
+
+    /// <summary>
+    /// Creates a new <c>SortableItem</c> with the same value as an old one in a specific temporary slot.
+    /// </summary>
+    /// <param name="oldItem">The <c>SortableItem</c> to copy.</param>
+    /// <param name="slotName">The name of the temporary slot where this item is being placed.</param>
+    protected internal SortableItem(SortableItem oldItem, string slotName) : this(oldItem, new TempSlot(slotName))
+    { }
+
+    #endregion
 
     // ----------------------------------------
 
@@ -67,7 +122,7 @@ public class SortableItem :
     protected int CompareUsingOperator(int value, CompareMode op, bool swap = false)
     {
         (int, Location) left = (Value, Location);
-        (int, Location) right = (value, new FreeFloating());
+        (int, Location) right = (value, new OtherValue());
 
         if (swap)
             (left, right) = (right, left);
@@ -148,9 +203,9 @@ public class SortableItem :
 
     // ----------------------------------------
 
-    // Hash as if this item was just the integer value
-    public override int GetHashCode() => Value.GetHashCode();
-
-    // Also print the item as if it was just a string.
+    // Print this item as if it was just its integer value.
     public override string ToString() => Value.ToString();
+
+    // Hash this item as if it was just its integer value.
+    public override int GetHashCode() => Value.GetHashCode();
 }

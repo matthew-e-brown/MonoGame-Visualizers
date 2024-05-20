@@ -1,24 +1,29 @@
 namespace SortVisualizer.StateTracking.Actions;
 
 /// <summary>
-/// An item has been moved from one location in the visualizer to another.
+/// An item has been copied from one location in the visualizer to another.
 /// </summary>
-public record Move : Action
+public record Copy : Action
 {
     public readonly Location From;
-    public readonly Location To;
+    public readonly Location Dest;
     public readonly int Value;
     public readonly int? Overwrote; // value, not index
 
-    public Move(int value, Location from, Location to)
+    public Copy(int value, Location from, Location dest)
     {
         Value = value;
         From = from;
-        To = to;
+        Dest = dest;
         Overwrote = null;
     }
 
-    public Move(int value, Location from, Location to, int overwrote) : this(value, from, to)
+    public Copy(SortableItem item, Location dest, int? overwrote) : this(item.Value, item.Location, dest)
+    {
+        Overwrote = overwrote;
+    }
+
+    public Copy(int value, Location from, Location dest, int? overwrote) : this(value, from, dest)
     {
         Overwrote = overwrote;
     }
