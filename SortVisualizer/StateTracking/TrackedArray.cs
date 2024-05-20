@@ -83,6 +83,12 @@ public class TrackedArray
     // When an item is retrieved from the visualizer, return it as-is, since they have their own current location as a
     // property. When it gets inserted back somewhere else, we'll know where it came from.
 
+    /// <summary>
+    /// Gets or sets which <c cref="SortableItem">SortableItem</c> is currently in the main visualizer array at the
+    /// given index.
+    /// </summary>
+    /// <param name="arrayIndex">The index of the item to get or set.</param>
+    /// <returns>A reference to the item currently at the given index in the main visualizer array.</returns>
     public SortableItem this[int arrayIndex]
     {
         get => MainArray[arrayIndex];
@@ -107,6 +113,15 @@ public class TrackedArray
         }
     }
 
+    /// <summary>
+    /// Gets or sets which <c cref="SortableItem">SortableItem</c> is currently in a temp-slot on the side of the main
+    /// visualizer array.
+    /// </summary>
+    /// <param name="slotName">The name of the slot to get an item from or put an item into.</param>
+    /// <returns>
+    /// A reference to the item currently in the given temp-slot. If there is no item in the slot, a get operation will
+    /// throw a <c cref="KeyNotFoundException">KeyNotFoundException</c>; a set operation will insert it there.
+    /// </returns>
     public SortableItem this[string slotName]
     {
         get => TempSlots[slotName];

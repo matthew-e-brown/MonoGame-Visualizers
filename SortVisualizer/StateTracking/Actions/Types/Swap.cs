@@ -20,9 +20,20 @@ public record Swap : Action
 
     // ----------------------------------------
 
+    // [TODO] Implement these.
+
     public override string Describe()
     {
-        // [TODO] Implement this.
+        throw new NotImplementedException();
+    }
+
+    protected internal override void Apply(int[] values)
+    {
+        throw new NotImplementedException();
+    }
+
+    protected internal override void Undo(int[] values)
+    {
         throw new NotImplementedException();
     }
 }
