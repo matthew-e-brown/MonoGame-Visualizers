@@ -263,4 +263,73 @@ public class TrackedArray
     #endregion
 
     // ----------------------------------------
+
+    #region Range copying
+
+    /// <summary>
+    /// Takes a range of <paramref name="count"/> items starting at <paramref name="index"/> and moves it left or right
+    /// by <paramref name="offset"/> slots.
+    ///
+    /// <para>
+    /// Whatever items were present in the destination region are <b>overwritten.</b> Use <see
+    /// cref="this[string]">temp-slots</see> to preserve them.
+    /// </para>
+    /// <para>
+    /// This method does nothing if <paramref name="count"/> or <paramref name="offset"/> are zero.
+    /// </para>
+    /// </summary>
+    ///
+    /// <param name="index">The start of the range to copy.</param>
+    /// <param name="count">How many items should be copied.</param>
+    /// <param name="offset">How far and in which direction the items should be copied within the array. Can be positive
+    /// or negative.</param>
+    ///
+    /// <exception cref="IndexOutOfRangeException">If <paramref name="index"/> is outside the bounds of the
+    /// array.</exception>
+    /// <exception cref="ArgumentException">If any part of the destination range falls outside the array.</exception>
+    public void CopyRange(int index, int count, int offset)
+    {
+        if (!(0 < index && index < MainArray.Length))
+            throw new IndexOutOfRangeException("Index was outside the bounds of the array.");
+        else if (index + offset < 0)
+            throw new ArgumentException("Start of destination range is outside the bounds of the array.");
+        else if (index + count + offset >= MainArray.Length)
+            throw new ArgumentException("End of destination range is outside the bounds of the array.");
+
+        if (offset == 0 || count == 0)
+            return;
+
+        // Shifting by `offset` in either direction means overwriting a count of `offset` values. The added cost of
+        // saving which values are overwritten is simply to allow the animation to undo/redo without losing values that
+        // got replaced.
+        int[] overwritten = new int[Math.Abs(offset)];
+
+        // End points are exclusive. The range we want to preserve is the region of `dst` which does not intersect with
+        // `src`. It starts where `dst` starts if `dst` is entirely after the end of `src`, otherwise it starts after
+        // `src` ends. It ends either where `dst` ends or where `src` begins, whichever is first.
+        var (srcStart, srcEnd) = (index, index + count);
+        var (dstStart, dstEnd) = (srcStart + offset, srcEnd + offset);
+
+        // e.g: index = 3, count = 2, offset = +4 --> copying [3, 4]          into [7, 8]          ==> Save [7, 8].
+        // e.g: index = 1, count = 5, offset = +2 --> copying [1, 2, 3, 4, 5] into [3, 4, 5, 6, 7] ==> Save [6, 7].
+        // e.g: index = 4, count = 5, offset = -1 --> copying [4, 5, 6, 7, 8] into [3, 4, 5, 6, 7] ==> Save [3].
+        var saveStart = Math.Max(srcEnd + 1, dstStart);
+        var saveEnd = Math.Min(dstEnd, srcStart);
+
+        for (int i = saveStart; i < saveEnd; i++)
+            overwritten[i - saveStart] = MainArray[i].Value;
+
+        // Now we can actually do the copy.
+        Array.Copy(MainArray, srcStart, MainArray, dstStart, count);
+
+        // Finally, go and tell all the items that we've moved them and push the action into history.
+        for (int i = dstStart; i < dstEnd; i++)
+            MainArray[i].Location = new ArrayIndex(i);
+
+        History.Add(new CopyRange(index, count, offset, overwritten));
+    }
+
+    #endregion
+
+    // ----------------------------------------
 }
