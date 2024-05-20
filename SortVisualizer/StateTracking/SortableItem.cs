@@ -96,67 +96,62 @@ public class SortableItem :
 
     #region Comparisons
 
-    // This method (+overload) handles the logging of all comparisons done on the SortableItem class.
+    // ----------------------------------------
 
-    /// <summary>
-    /// Uses <c>CompareTo</c> to compare this item to another one and logs the comparison in the parent's history.
-    /// </summary>
-    /// <param name="other">The other item.</param>
-    /// <param name="mode">Which operation was used to do the comparison.</param>
-    protected int CompareUsingOperator(SortableItem other, CompareMode mode)
+    // This method and its overloads handle all the actual comparisons. The rest just forward here.
+
+    protected static int CompareAndLog(SortableItem a, SortableItem b, CompareMode mode)
     {
-        var left = (Value, Location);
-        var right = (other.Value, other.Location);
+        if (!ReferenceEquals(a.Parent, b.Parent))
+            throw new Exception("Cannot compare two sortable items from different visualizers/tracked arrays.");
 
-        Parent.History.Add(new Compare(left, right, mode));
-
-        return Value.CompareTo(other);
+        int result = a.Value.CompareTo(b.Value);
+        a.Parent.History.Add(new Compare(a, b, mode));
+        return result;
     }
 
-    /// <summary>
-    /// Compares this item's value to a plain integer and logs the comparison in the parent's history.
-    /// </summary>
-    /// <param name="value">The integer value to compare with.</param>
-    /// <param name="op">Which operation was used to do the comparison.</param>
-    /// <param name="swap">If true, logs the comparison as having been integer–item instead of item–integer.</param>
-    protected int CompareUsingOperator(int value, CompareMode op, bool swap = false)
+    protected static int CompareAndLog(SortableItem a, int b, CompareMode mode)
     {
-        (int, Location) left = (Value, Location);
-        (int, Location) right = (value, new OtherValue());
+        int result = a.Value.CompareTo(b);
+        a.Parent.History.Add(new Compare(a, b, mode));
+        return result;
+    }
 
-        if (swap)
-            (left, right) = (right, left);
-
-        Parent.History.Add(new Compare(left, right, op));
-
-        return Value.CompareTo(value);
+    protected static int CompareAndLog(int a, SortableItem b, CompareMode mode)
+    {
+        int result = a.CompareTo(b.Value);
+        b.Parent.History.Add(new Compare(a, b, mode));
+        return result;
     }
 
     // ----------------------------------------
 
-    public int CompareTo(int other) => CompareUsingOperator(other, CompareMode.CompareTo);
+    #region Interface implementations
+
+    public int CompareTo(int other) => CompareAndLog(this, other, CompareMode.CompareTo);
 
     public int CompareTo(SortableItem? other)
     {
         if (other is null) throw new NullReferenceException("Attempted to compare a null SortableItem.");
-        else return CompareUsingOperator(other, CompareMode.CompareTo);
-    }
-
-    // Fall back to plain equality operator for Object.Equals checks; will be logged the same as `==`.
-    public bool Equals(int other) => this == other;
-
-    public bool Equals(SortableItem? other)
-    {
-        if (other is null) throw new NullReferenceException("Attempted to compare a null SortableItem.");
-        else return this == other;
+        else return CompareAndLog(this, other, CompareMode.CompareTo);
     }
 
     public int CompareTo(object? obj)
     {
-        if (obj is SortableItem other) return CompareUsingOperator(other, CompareMode.CompareTo);
-        else if (obj is int value) return CompareUsingOperator(value, CompareMode.CompareTo);
+        if (obj is SortableItem other) return CompareAndLog(this, other, CompareMode.CompareTo);
+        else if (obj is int value) return CompareAndLog(this, value, CompareMode.CompareTo);
         else if (obj is null) throw new NullReferenceException("Attempted to compare a null object to a SortableItem.");
         else throw new ArgumentException("Object is not a SortableItem");
+    }
+
+    // ----------------------------------------
+
+    public bool Equals(int other) => CompareAndLog(this, other, CompareMode.Equal) == 0;
+
+    public bool Equals(SortableItem? other)
+    {
+        if (other is null) throw new NullReferenceException("Attempted to compare a null SortableItem.");
+        else return CompareAndLog(this, other, CompareMode.Equal) == 0;
     }
 
     public override bool Equals(object? obj)
@@ -167,33 +162,35 @@ public class SortableItem :
         else throw new ArgumentException("Object is not a SortableItem");
     }
 
+    #endregion
+
     // ----------------------------------------
 
     #region Comparison operators
 
     // Allow comparison with self
-    public static bool operator ==(SortableItem a, SortableItem b) => a.CompareUsingOperator(b, CompareMode.Equal) == 0;
-    public static bool operator !=(SortableItem a, SortableItem b) => a.CompareUsingOperator(b, CompareMode.NotEqual) != 0;
-    public static bool operator <=(SortableItem a, SortableItem b) => a.CompareUsingOperator(b, CompareMode.LessThanOrEqual) <= 0;
-    public static bool operator >=(SortableItem a, SortableItem b) => a.CompareUsingOperator(b, CompareMode.GreaterThanOrEqual) >= 0;
-    public static bool operator <(SortableItem a, SortableItem b) => a.CompareUsingOperator(b, CompareMode.LessThan) < 0;
-    public static bool operator >(SortableItem a, SortableItem b) => a.CompareUsingOperator(b, CompareMode.GreaterThan) > 0;
+    public static bool operator ==(SortableItem a, SortableItem b) => CompareAndLog(a, b, CompareMode.Equal) == 0;
+    public static bool operator !=(SortableItem a, SortableItem b) => CompareAndLog(a, b, CompareMode.NotEqual) != 0;
+    public static bool operator <=(SortableItem a, SortableItem b) => CompareAndLog(a, b, CompareMode.LessThanOrEqual) <= 0;
+    public static bool operator >=(SortableItem a, SortableItem b) => CompareAndLog(a, b, CompareMode.GreaterThanOrEqual) >= 0;
+    public static bool operator <(SortableItem a, SortableItem b) => CompareAndLog(a, b, CompareMode.LessThan) < 0;
+    public static bool operator >(SortableItem a, SortableItem b) => CompareAndLog(a, b, CompareMode.GreaterThan) > 0;
 
     // Allow comparison with an integer
-    public static bool operator ==(SortableItem a, int b) => a.CompareUsingOperator(b, CompareMode.Equal) == 0;
-    public static bool operator !=(SortableItem a, int b) => a.CompareUsingOperator(b, CompareMode.NotEqual) != 0;
-    public static bool operator <=(SortableItem a, int b) => a.CompareUsingOperator(b, CompareMode.LessThanOrEqual) <= 0;
-    public static bool operator >=(SortableItem a, int b) => a.CompareUsingOperator(b, CompareMode.GreaterThanOrEqual) >= 0;
-    public static bool operator <(SortableItem a, int b) => a.CompareUsingOperator(b, CompareMode.LessThan) < 0;
-    public static bool operator >(SortableItem a, int b) => a.CompareUsingOperator(b, CompareMode.GreaterThan) > 0;
+    public static bool operator ==(SortableItem a, int b) => CompareAndLog(a, b, CompareMode.Equal) == 0;
+    public static bool operator !=(SortableItem a, int b) => CompareAndLog(a, b, CompareMode.NotEqual) != 0;
+    public static bool operator <=(SortableItem a, int b) => CompareAndLog(a, b, CompareMode.LessThanOrEqual) <= 0;
+    public static bool operator >=(SortableItem a, int b) => CompareAndLog(a, b, CompareMode.GreaterThanOrEqual) >= 0;
+    public static bool operator <(SortableItem a, int b) => CompareAndLog(a, b, CompareMode.LessThan) < 0;
+    public static bool operator >(SortableItem a, int b) => CompareAndLog(a, b, CompareMode.GreaterThan) > 0;
 
     // Same comparisons, but with integer first
-    public static bool operator ==(int a, SortableItem b) => b.CompareUsingOperator(a, CompareMode.Equal, swap: true) == 0;
-    public static bool operator !=(int a, SortableItem b) => b.CompareUsingOperator(a, CompareMode.NotEqual, swap: true) != 0;
-    public static bool operator <=(int a, SortableItem b) => b.CompareUsingOperator(a, CompareMode.LessThanOrEqual, swap: true) <= 0;
-    public static bool operator >=(int a, SortableItem b) => b.CompareUsingOperator(a, CompareMode.GreaterThanOrEqual, swap: true) >= 0;
-    public static bool operator <(int a, SortableItem b) => b.CompareUsingOperator(a, CompareMode.LessThan, swap: true) < 0;
-    public static bool operator >(int a, SortableItem b) => b.CompareUsingOperator(a, CompareMode.GreaterThan, swap: true) > 0;
+    public static bool operator ==(int a, SortableItem b) => CompareAndLog(a, b, CompareMode.Equal) == 0;
+    public static bool operator !=(int a, SortableItem b) => CompareAndLog(a, b, CompareMode.NotEqual) != 0;
+    public static bool operator <=(int a, SortableItem b) => CompareAndLog(a, b, CompareMode.LessThanOrEqual) <= 0;
+    public static bool operator >=(int a, SortableItem b) => CompareAndLog(a, b, CompareMode.GreaterThanOrEqual) >= 0;
+    public static bool operator <(int a, SortableItem b) => CompareAndLog(a, b, CompareMode.LessThan) < 0;
+    public static bool operator >(int a, SortableItem b) => CompareAndLog(a, b, CompareMode.GreaterThan) > 0;
 
     #endregion
 
