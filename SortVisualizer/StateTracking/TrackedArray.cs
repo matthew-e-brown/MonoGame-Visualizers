@@ -1,6 +1,5 @@
-namespace SortVisualizer;
+namespace SortVisualizer.StateTracking;
 
-using SortVisualizer.StateTracking;
 using SortVisualizer.StateTracking.Actions;
 using Microsoft.Xna.Framework;
 
