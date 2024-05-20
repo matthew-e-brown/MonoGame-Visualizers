@@ -16,17 +16,49 @@ using Microsoft.Xna.Framework;
 /// </remarks>
 public class TrackedArray
 {
+    /// <summary>
+    /// The main set of items being sorted.
+    ///
+    /// <para>
+    /// These items are represented in the visualizer as boxes of varying heights.
+    /// </para>
+    /// </summary>
     protected internal SortableItem[] MainArray { get; }
 
     /// <summary>
-    /// Items that are off the side of the main array. Their heights will be marked with a thin dotted line that spans
-    /// the width of the visualizer, allowing for easy visual comparisons.
+    /// Temporary slots off to the side of the main array in the visualizer, tracked by name (as if they were a literal
+    /// `int temp = ...` in the user's algorithm).
+    ///
+    /// <para>
+    /// The heights of items in temp slots are marked with a thin dotted line that spans the width of the visualizer.
+    /// This is so they can be compared with the other items in the array.
+    /// </para>
     /// </summary>
     protected internal Dictionary<string, SortableItem> TempSlots { get; }
 
+    /// <summary>
+    /// Specific indices that the user has marked as being relevant for some reason or another.
+    ///
+    /// <para>
+    /// These indices are marked with arrows pointing down at the slot.
+    /// </para>
+    /// </summary>
     protected internal Dictionary<string, (int index, Color color)> MarkedIndices { get; }
+
+    /// <summary>
+    /// Similar to <c cref="MarkedIndices">MarkedIndices</c>, but for entire ranges instead of individual locations.
+    ///
+    /// <para>
+    /// These ranges are represented both by highlights on the boxes themselves and by coloured lines underneath the
+    /// array.
+    /// </para>
+    /// </summary>
     protected internal Dictionary<string, (Range range, Color color)> MarkedRanges { get; }
 
+    /// <summary>
+    /// A list of all of the <see cref="Action">actions</see> that the user has performed thus far during the execution
+    /// of their sorting algorithm.
+    /// </summary>
     protected internal List<Action> History { get; }
 
     // ----------------------------------------
@@ -210,7 +242,11 @@ public class TrackedArray
     }
 
     /// <summary>
-    /// Swaps the positions of <c cref="SortableItem">SortableItem</c>s <paramref name="a"/> and <paramref name="b"/>.
+    /// Swaps the locations of the two given <c cref="SortableItem">SortableItem</c>s.
+    ///
+    /// <para>
+    /// This will also swap the references in parameters <paramref name="a"/> and <paramref name="b"/>.
+    /// </para>
     /// </summary>
     public void Swap(ref SortableItem a, ref SortableItem b)
     {
