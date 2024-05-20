@@ -28,7 +28,7 @@ public class SortableItem :
     /// <summary>
     /// A pointer to the parent visualizer to allow this item to insert things into history.
     /// </summary>
-    protected readonly TrackedArray Parent;
+    protected internal readonly TrackedArray Parent;
 
     // ----------------------------------------
 
@@ -103,7 +103,7 @@ public class SortableItem :
     protected static int CompareAndLog(SortableItem a, SortableItem b, CompareMode mode)
     {
         if (!ReferenceEquals(a.Parent, b.Parent))
-            throw new Exception("Cannot compare two sortable items from different visualizers/tracked arrays.");
+            throw new ArgumentException("Cannot compare SortableItems from two different visualizers.");
 
         int result = a.Value.CompareTo(b.Value);
         a.Parent.History.Add(new Compare(a, b, mode));

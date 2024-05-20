@@ -91,22 +91,23 @@ public class TrackedArray
     /// <returns>A reference to the item currently at the given index in the main visualizer array.</returns>
     public SortableItem this[int arrayIndex]
     {
-        get => MainArray[arrayIndex];
+        get
+        {
+            if (!(0 <= arrayIndex && arrayIndex < MainArray.Length))
+                throw new AlgoIndexException("get index", arrayIndex, MainArray.Length);
+            return MainArray[arrayIndex];
+        }
+
         set
         {
-            int oldVal;
-            var newLoc = new ArrayIndex(arrayIndex);
+            if (!(0 <= arrayIndex && arrayIndex < MainArray.Length))
+                throw new AlgoIndexException("set index", arrayIndex, MainArray.Length);
 
-            try
-            {
-                oldVal = MainArray[arrayIndex].Value;
-                MainArray[arrayIndex] = value;
-                MainArray[arrayIndex].Location = newLoc;
-            }
-            catch (IndexOutOfRangeException)
-            {
-                throw; // Catch and re-throw just for the sake of explicitness.
-            }
+            var newLoc = new ArrayIndex(arrayIndex);
+            int oldVal = MainArray[arrayIndex].Value;
+
+            MainArray[arrayIndex] = value;
+            MainArray[arrayIndex].Location = newLoc;
 
             // Only add to history if indexing was successful.
             History.Add(new Copy(value, newLoc, oldVal));
@@ -120,11 +121,17 @@ public class TrackedArray
     /// <param name="slotName">The name of the slot to get an item from or put an item into.</param>
     /// <returns>
     /// A reference to the item currently in the given temp-slot. If there is no item in the slot, a get operation will
-    /// throw a <c cref="KeyNotFoundException">KeyNotFoundException</c>; a set operation will insert it there.
+    /// throw an <see cref="AlgoSlotException">exception</see>; a set operation will insert it there.
     /// </returns>
     public SortableItem this[string slotName]
     {
-        get => TempSlots[slotName];
+        get
+        {
+            if (!TempSlots.TryGetValue(slotName, out SortableItem? value))
+                throw new AlgoSlotException("get temp-slot", slotName);
+            return value;
+        }
+
         set
         {
             var newLoc = new TempSlot(slotName);
@@ -150,28 +157,17 @@ public class TrackedArray
     /// </summary>
     /// <param name="i">Index of the first item to swap.</param>
     /// <param name="j">Index of the second item to swap.</param>
-    /// <exception cref="IndexOutOfRangeException">If either of the given indices are outside the bounds of the
-    /// array.</exception>
     public void Swap(int i, int j)
     {
-        Action action;
+        if (!(0 <= i && i < MainArray.Length)) throw new AlgoIndexException("swap", i, MainArray.Length);
+        if (!(0 <= j && j < MainArray.Length)) throw new AlgoIndexException("swap", j, MainArray.Length);
 
-        try
-        {
-            action = new Swap(MainArray[i], MainArray[j]);
+        History.Add(new Swap(MainArray[i], MainArray[j]));
 
-            // Move A from `i` into `j`, but also make sure it knows that it now lives at `j`.
-            (MainArray[i], MainArray[j]) = (MainArray[j], MainArray[i]);
-            MainArray[i].Location = new ArrayIndex(i);
-            MainArray[j].Location = new ArrayIndex(j);
-        }
-        catch (IndexOutOfRangeException)
-        {
-            throw; // Again, just for the sake of explicitness.
-        }
-
-        // Only add to history if indexing was successful.
-        History.Add(action);
+        // Move A from `i` into `j`, but also make sure it knows that it now lives at `j`.
+        (MainArray[i], MainArray[j]) = (MainArray[j], MainArray[i]);
+        MainArray[i].Location = new ArrayIndex(i);
+        MainArray[j].Location = new ArrayIndex(j);
     }
 
     /// <summary>
@@ -180,8 +176,6 @@ public class TrackedArray
     /// </summary>
     /// <param name="arrayIdx">The index of the item to swap into the temp-slot / destination of the second item.</param>
     /// <param name="slotName">The slot to swap the first item into / second item out of.</param>
-    /// <exception cref="IndexOutOfRangeException">If the given index is outside the bounds of the array.</exception>
-    /// <exception cref="KeyNotFoundException">If the given temp-slot doesn't have anything in it yet.</exception>
     public void Swap(int arrayIdx, string slotName) => Swap(arrayIdx, slotName, reverseOrder: false);
 
     /// <summary>
@@ -190,42 +184,28 @@ public class TrackedArray
     /// </summary>
     /// <param name="slotName">The slot to swap the second item into / first item out of.</param>
     /// <param name="arrayIdx">The index of the item to swap into the temp-slot / destination of the first item.</param>
-    /// <exception cref="KeyNotFoundException">If the given temp-slot doesn't have anything in it yet.</exception>
-    /// <exception cref="IndexOutOfRangeException">If the given index is outside the bounds of the array.</exception>
     public void Swap(string slotName, int arrayIdx) => Swap(arrayIdx, slotName, reverseOrder: true);
 
     /// <summary>
     /// Internal implementation of both int/string swaps.
     /// </summary>
-    /// <param name="arrayIdx">The index to swap to/from.</param>
+    /// <param name="idx">The index to swap to/from.</param>
     /// <param name="slotName">The slot to swap to/from.</param>
     /// <param name="reverseOrder">Whether or not the history item should display "slot⇄index" or "index⇄slot". The
     /// latter is the default.</param>
-    private void Swap(int arrayIdx, string slotName, bool reverseOrder)
+    private void Swap(int idx, string slotName, bool reverseOrder)
     {
-        Action action;
+        if (!(0 <= idx && idx < MainArray.Length)) throw new AlgoIndexException("swap", idx, MainArray.Length);
+        else if (!TempSlots.ContainsKey(slotName)) throw new AlgoSlotException("swap", slotName);
 
-        try
-        {
-            action = reverseOrder
-                ? new Swap(TempSlots[slotName], MainArray[arrayIdx])
-                : new Swap(MainArray[arrayIdx], TempSlots[slotName]);
-
-            (MainArray[arrayIdx], TempSlots[slotName]) = (TempSlots[slotName], MainArray[arrayIdx]);
-            MainArray[arrayIdx].Location = new ArrayIndex(arrayIdx);
-            TempSlots[slotName].Location = new TempSlot(slotName);
-        }
-        catch (IndexOutOfRangeException)
-        {
-            throw;
-        }
-        catch (KeyNotFoundException)
-        {
-            throw;
-        }
-
-        // Only add to history if indexing was successful.
+        var action = reverseOrder
+            ? new Swap(TempSlots[slotName], MainArray[idx])
+            : new Swap(MainArray[idx], TempSlots[slotName]);
         History.Add(action);
+
+        (MainArray[idx], TempSlots[slotName]) = (TempSlots[slotName], MainArray[idx]);
+        MainArray[idx].Location = new ArrayIndex(idx);
+        TempSlots[slotName].Location = new TempSlot(slotName);
     }
 
     /// <summary>
@@ -233,27 +213,16 @@ public class TrackedArray
     /// </summary>
     /// <param name="slot1">Name of the first slot to swap to/from.</param>
     /// <param name="slot2">Name of the second slot to swap to/from.</param>
-    /// <exception cref="KeyNotFoundException">If either of the two temp-slots do not have anything in them
-    /// yet.</exception>
     public void Swap(string slot1, string slot2)
     {
-        Action action;
+        if (!TempSlots.ContainsKey(slot1)) throw new AlgoSlotException("swap", slot1);
+        if (!TempSlots.ContainsKey(slot2)) throw new AlgoSlotException("swap", slot2);
 
-        try
-        {
-            action = new Swap(TempSlots[slot1], TempSlots[slot2]);
+        History.Add(new Swap(TempSlots[slot1], TempSlots[slot2]));
 
-            (TempSlots[slot1], TempSlots[slot2]) = (TempSlots[slot2], TempSlots[slot1]);
-            TempSlots[slot1].Location = new TempSlot(slot1);
-            TempSlots[slot2].Location = new TempSlot(slot2);
-        }
-        catch (KeyNotFoundException)
-        {
-            throw;
-        }
-
-        // Only add to history if indexing was successful.
-        History.Add(action);
+        (TempSlots[slot1], TempSlots[slot2]) = (TempSlots[slot2], TempSlots[slot1]);
+        TempSlots[slot1].Location = new TempSlot(slot1);
+        TempSlots[slot2].Location = new TempSlot(slot2);
     }
 
     /// <summary>
@@ -263,9 +232,12 @@ public class TrackedArray
     /// This will also swap the references in parameters <paramref name="a"/> and <paramref name="b"/>.
     /// </para>
     /// </summary>
-    public void Swap(ref SortableItem a, ref SortableItem b)
+    public static void Swap(ref SortableItem a, ref SortableItem b)
     {
-        History.Add(new Swap(a, b));
+        if (!ReferenceEquals(a.Parent, b.Parent))
+            throw new ArgumentException("Cannot swap SortableItems from two different visualizers.");
+
+        a.Parent.History.Add(new Swap(a, b));
         var aOldLoc = a.Location;
         var bOldLoc = b.Location;
 
@@ -298,41 +270,46 @@ public class TrackedArray
     /// <param name="count">How many items should be copied.</param>
     /// <param name="offset">How far and in which direction the items should be copied within the array. Can be positive
     /// or negative.</param>
-    ///
-    /// <exception cref="IndexOutOfRangeException">If <paramref name="index"/> is outside the bounds of the
-    /// array.</exception>
-    /// <exception cref="ArgumentException">If any part of the destination range falls outside the array.</exception>
     public void CopyRange(int index, int count, int offset)
     {
-        if (!(0 < index && index < MainArray.Length))
-            throw new IndexOutOfRangeException("Index was outside the bounds of the array.");
-        else if (index + offset < 0)
-            throw new ArgumentException("Start of destination range is outside the bounds of the array.");
-        else if (index + count + offset >= MainArray.Length)
-            throw new ArgumentException("End of destination range is outside the bounds of the array.");
+        // End points are exclusive.
+        var (srcStart, srcEnd) = (index, index + count);
+        var (dstStart, dstEnd) = (srcStart + offset, srcEnd + offset);
+
+        if (!(0 < srcStart && srcStart < MainArray.Length))
+            throw new AlgoIndexException("copy range", srcStart, MainArray.Length);
+        else if (srcEnd >= MainArray.Length)
+            throw new AlgoIndexException("copy range", srcEnd, MainArray.Length, "range extends past the bounds of the array.");
+        else if (dstStart < 0)
+            throw new AlgoIndexException("copy range", dstStart, MainArray.Length, "start of destination range would be outside the bounds of the array.");
+        else if (dstEnd >= MainArray.Length)
+            throw new AlgoIndexException("copy range", dstEnd, MainArray.Length, "end of destination range would be outside the bounds of the array.");
 
         if (offset == 0 || count == 0)
             return;
+
+        // ----------------------------------------
 
         // Shifting by `offset` in either direction means overwriting a count of `offset` values. The added cost of
         // saving which values are overwritten is simply to allow the animation to undo/redo without losing values that
         // got replaced.
         int[] overwritten = new int[Math.Abs(offset)];
 
-        // End points are exclusive. The range we want to preserve is the region of `dst` which does not intersect with
-        // `src`. It starts where `dst` starts if `dst` is entirely after the end of `src`, otherwise it starts after
-        // `src` ends. It ends either where `dst` ends or where `src` begins, whichever is first.
-        var (srcStart, srcEnd) = (index, index + count);
-        var (dstStart, dstEnd) = (srcStart + offset, srcEnd + offset);
+        // The range we want to preserve is the region of `dst` which does not intersect with `src`. It starts where
+        // `dst` starts if `dst` is entirely after the end of `src`, otherwise it starts after `src` ends. It ends
+        // either where `dst` ends or where `src` begins, whichever is first.
 
         // e.g: index = 3, count = 2, offset = +4 --> copying [3, 4]          into [7, 8]          ==> Save [7, 8].
         // e.g: index = 1, count = 5, offset = +2 --> copying [1, 2, 3, 4, 5] into [3, 4, 5, 6, 7] ==> Save [6, 7].
         // e.g: index = 4, count = 5, offset = -1 --> copying [4, 5, 6, 7, 8] into [3, 4, 5, 6, 7] ==> Save [3].
+
         var saveStart = Math.Max(srcEnd + 1, dstStart);
         var saveEnd = Math.Min(dstEnd, srcStart);
 
         for (int i = saveStart; i < saveEnd; i++)
             overwritten[i - saveStart] = MainArray[i].Value;
+
+        // ----------------------------------------
 
         // Now we can actually do the copy.
         Array.Copy(MainArray, srcStart, MainArray, dstStart, count);
