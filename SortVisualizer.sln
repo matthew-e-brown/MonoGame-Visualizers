@@ -5,6 +5,8 @@ VisualStudioVersion = 17.0.31903.59
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SortVisualizer", "SortVisualizer\SortVisualizer.csproj", "{41130490-6470-4413-8CCB-30DFB3D5B34E}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SortVisualizer.Tests", "SortVisualizer.Tests\SortVisualizer.Tests.csproj", "{D428C520-5C73-4F47-8FC2-D990A29B7A67}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -18,5 +20,9 @@ Global
 		{41130490-6470-4413-8CCB-30DFB3D5B34E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{41130490-6470-4413-8CCB-30DFB3D5B34E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{41130490-6470-4413-8CCB-30DFB3D5B34E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D428C520-5C73-4F47-8FC2-D990A29B7A67}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D428C520-5C73-4F47-8FC2-D990A29B7A67}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D428C520-5C73-4F47-8FC2-D990A29B7A67}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D428C520-5C73-4F47-8FC2-D990A29B7A67}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
