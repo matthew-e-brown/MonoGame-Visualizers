@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    This is kinda dumb, but the current sprite-loading system only supports loading from a larger
+    atlas. Could just load it as a texture, but these XML files are already parsed automatically on
+    startup, so may as well... [TODO] Make this less dumb.
+-->
+<SpriteList FilePath="./Circle.png" Name="Other">
+    <Sprite X="0" Y="0" W="256" H="256" Name="Circle" />
+</SpriteList>

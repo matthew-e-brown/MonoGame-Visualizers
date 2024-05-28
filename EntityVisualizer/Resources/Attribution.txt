@@ -1,0 +1,19 @@
+NOTO SANS MONO  -  Copyright 2022 The Noto Project Authors (https://github.com/notofonts/latin-greek-cyrillic)
+NOTO EMOJI      -  Copyright 2013 Google LLC
+
+(see OFL.txt)
+
+------------------------------------------------------------------------
+
+Sprites come from user VEXED on Itch.io, released under the CC0 license (public domain).
+
+https://v3x3d.itch.io/
+https://twitter.com/_V3X3D
+
+https://v3x3d.itch.io/bit-bonanza (v5.0)
+https://v3x3d.itch.io/bountiful-bits (v3.1)
+
+DungeonFont comes from user vrtxrry on Itch.io, also released under CC0.
+
+https://vrtxrry.itch.io/
+https://vrtxrry.itch.io/dungeonfont (downloaded 2024-05-23)

@@ -1,8 +1,7 @@
-# SortVisualizer
+# MonoGame Visualizations
 
-A .NET package for visualizing, debugging, and stepping through sorting
-algorithms.
+This monorepo is a hub for several .NET projects built on top of MonoGame to
+serve as visualization aids for teachers, students, and other learners.
 
-This project is intended primarily as an educational tool. Its goal is to help
-students during labs and assignments as they learn and implement sorting
-algorithms for the first time.
+The first round of these tools are being built mostly to service the Summer 2024
+run of **COIS-2020H** at Trent University.
