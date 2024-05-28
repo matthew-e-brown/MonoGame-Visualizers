@@ -1,52 +1,64 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
+  <!-- NuGet / package properties -->
   <PropertyGroup>
-    <!--
-      No OutputType: this is a classlib that the student's project will depend on. The Assignment2
-      `csproj` file has the OutputType.
-    -->
+    <PackageId>TrentCOIS.Tools.Visualization.EntityViz</PackageId>
+    <Version>0.1.2</Version>
+    <AssemblyName>TrentCOIS.EntityViz</AssemblyName>
+
+    <Title>Entity Visualizer</Title>
+    <Authors>Matthew Brown</Authors>
+    <Company>Trent University</Company>
+    <Description>
+      MonoGame-based tool for visualizing game entities and their interactions on a 2D playfield.
+    </Description>
+    <PackageTags>Education;MonoGame;Visualization</PackageTags>
+
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+
+    <IsPackable>true</IsPackable>
+  </PropertyGroup>
+  <ItemGroup>
+    <None Include="README.md" Pack="true" PackagePath="\" />
+  </ItemGroup>
+
+  <!-- .NET / C# properties -->
+  <PropertyGroup>
     <TargetFramework>net6.0</TargetFramework>
     <RollForward>Major</RollForward>
     <PublishReadyToRun>false</PublishReadyToRun>
     <TieredCompilation>false</TieredCompilation>
-  </PropertyGroup>
-
-  <PropertyGroup>
-    <ImplicitUsings>disable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    <ImplicitUsings>disable</ImplicitUsings>
   </PropertyGroup>
 
+  <!-- Application properties -->
   <PropertyGroup>
-    <ApplicationManifest>Resources\app.manifest</ApplicationManifest>
+    <!-- TODO: Better icon. -->
     <ApplicationIcon>Resources\Icon.ico</ApplicationIcon>
+    <ApplicationManifest>Resources\app.manifest</ApplicationManifest>
   </PropertyGroup>
 
+  <!-- Included items and content -->
   <ItemGroup>
     <EmbeddedResource Include="Resources\Icon.ico" />
     <EmbeddedResource Include="Resources\Icon.bmp" />
   </ItemGroup>
-
-  <!-- Tells all <Content> items to copy to output/publish directories -->
-  <ItemDefinitionGroup>
-    <Content>
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
-    </Content>
-  </ItemDefinitionGroup>
-
   <ItemGroup>
-    <!-- Seems more reasonable to use content items than embedded resources for this. -->
-    <Content Include="Resources\Sprites\**\*.png" />
-    <Content Include="Resources\Sprites\*.xml" />
-    <Content Include="Resources\Fonts\*.ttf" />
-
-    <Content Include="Resources\Attribution.txt" />
-    <Content Include="Resources\OFL.txt" />
+    <Content Pack="true" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" PackageCopyToOutput="true" Include="Resources\Sprites\**\*.png" />
+    <Content Pack="true" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" PackageCopyToOutput="true" Include="Resources\Sprites\*.xml" />
+    <Content Pack="true" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" PackageCopyToOutput="true" Include="Resources\Fonts\*.ttf" />
+    <Content Pack="true" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" PackageCopyToOutput="true" Include="Resources\Attribution.txt" />
+    <Content Pack="true" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" PackageCopyToOutput="true" Include="Resources\OFL.txt" />
   </ItemGroup>
 
+  <!-- Dependencies -->
   <ItemGroup>
     <PackageReference Include="MonoGame.Framework.DesktopGL" Version="3.8.1.303" />
     <PackageReference Include="FontStashSharp.MonoGame" Version="1.3.7" />
+    <!-- TODO: Get SourceLink to work for debugging (make CTRL+click show actual source) -->
+    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="All"/>
   </ItemGroup>
 
 </Project>
