@@ -74,7 +74,9 @@ public abstract class Visualizer : Game
     /// </summary>
     ///
     /// <remarks>
-    /// This counter
+    /// For all intents and purposes, this counter is 1-based. It starts at zero, but it is incremented before the first
+    /// time the user's <see cref="Update()"/> method is called. That way, tick number "zero" is the one seen before any
+    /// stepping occurs.
     /// </remarks>
     public uint CurrentTimestamp { get; private protected set; } = 0;
 
