@@ -1,0 +1,52 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <!--
+      No OutputType: this is a classlib that the student's project will depend on. The Assignment2
+      `csproj` file has the OutputType.
+    -->
+    <TargetFramework>net6.0</TargetFramework>
+    <RollForward>Major</RollForward>
+    <PublishReadyToRun>false</PublishReadyToRun>
+    <TieredCompilation>false</TieredCompilation>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <ApplicationManifest>Resources\app.manifest</ApplicationManifest>
+    <ApplicationIcon>Resources\Icon.ico</ApplicationIcon>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\Icon.ico" />
+    <EmbeddedResource Include="Resources\Icon.bmp" />
+  </ItemGroup>
+
+  <!-- Tells all <Content> items to copy to output/publish directories -->
+  <ItemDefinitionGroup>
+    <Content>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+  </ItemDefinitionGroup>
+
+  <ItemGroup>
+    <!-- Seems more reasonable to use content items than embedded resources for this. -->
+    <Content Include="Resources\Sprites\**\*.png" />
+    <Content Include="Resources\Sprites\*.xml" />
+    <Content Include="Resources\Fonts\*.ttf" />
+
+    <Content Include="Resources\Attribution.txt" />
+    <Content Include="Resources\OFL.txt" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="MonoGame.Framework.DesktopGL" Version="3.8.1.303" />
+    <PackageReference Include="FontStashSharp.MonoGame" Version="1.3.7" />
+  </ItemGroup>
+
+</Project>

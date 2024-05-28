@@ -1,0 +1,620 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<SpriteList>
+    <!--
+        This does not include all the sprites. Just the ones that (a) I thought the students would
+        like to maybe use if they were going to tinker with their own, and (b) I was actually able
+        to discern what they were... lol.
+    -->
+    <!-- [TODO] Add the rest later. -->
+
+    <SpriteGroup Name="Enemies" FilePath="./BitBonanza/Creatures.png">
+        <Sprite Name="Skeleton" X="80" Y="30" />
+        <Sprite Name="Skeleton.Sword" X="90" Y="30" />
+        <Sprite Name="Skeleton.Bow" X="100" Y="30" />
+        <Sprite Name="Skeleton.Halberd" X="110" Y="30" />
+        <Sprite Name="Spider" X="100" Y="40" />
+        <Sprite Name="Mouse" X="60" Y="10" />
+        <Sprite Name="Mouse.BigEars" X="80" Y="10" />
+        <Sprite Name="Goblin.Scepter" X="80" Y="70" />
+        <Sprite Name="Goblin.Glaive" X="90" Y="70" />
+        <Sprite Name="Goblin" X="100" Y="70" />
+        <Sprite Name="Goblin.Sword" X="110" Y="70" />
+        <Sprite Name="Demon" X="40" Y="70" />
+        <Sprite Name="Demon.Sword" X="50" Y="70" />
+        <Sprite Name="Demon.Glaive" X="60" Y="70" />
+        <Sprite Name="Demon.Scepter" X="70" Y="70" />
+        <Sprite Name="HoodedFigure.Glaive" X="120" Y="30" />
+        <Sprite Name="HoodedFigure" X="130" Y="30" />
+        <Sprite Name="Martian" X="0" Y="90" />
+        <Sprite Name="Martian.Gun" X="10" Y="90" />
+        <Sprite Name="ClassicAlien" X="20" Y="90" />
+        <Sprite Name="ClassicAlien.Gun" X="30" Y="90" />
+        <Sprite Name="Goobert" X="40" Y="90" /> <!-- What else would you call this thing? lmao -->
+        <Sprite Name="AlienSquid" X="40" Y="80" />
+        <Sprite Name="AlienShip.Landed" X="60" Y="80" />
+        <Sprite Name="AlienShip" X="70" Y="80" />
+        <Sprite Name="Crab.Large" X="20" Y="40" />
+        <Sprite Name="Crab.Small" X="30" Y="40" />
+        <Sprite Name="Bat1" X="20" Y="10" />
+        <Sprite Name="Bat2" X="30" Y="10" />
+        <Sprite Name="ZeldaBubble.Small" X="20" Y="30" />
+        <Sprite Name="ZeldaBubble.Large" X="60" Y="60" />
+        <Sprite Name="ZeldaFairy.Blue" X="40" Y="30" />
+        <Sprite Name="CthulhuEye1" X="60" Y="50" />
+        <Sprite Name="CthulhuEye2" X="70" Y="50" />
+        <Sprite Name="Wisp.Plain1" X="20" Y="60" />
+        <Sprite Name="Wisp.Plain2" X="30" Y="60" />
+        <Sprite Name="Wisp.Fire" X="80" Y="50" />
+        <Sprite Name="Wisp.Water" X="90" Y="50" />
+        <Sprite Name="Wisp.Grass" X="100" Y="50" />
+        <Sprite Name="Wisp.Lightning" X="110" Y="50" />
+        <Sprite Name="Wisp.Poison" X="120" Y="50" />
+        <Sprite Name="Slime.Green1" X="60" Y="0" />
+        <Sprite Name="Slime.Green2" X="70" Y="0" />
+        <Sprite Name="Slime.Blue" X="40" Y="40" />
+        <Sprite Name="Slime.Pink" X="60" Y="40" />
+        <Sprite Name="Ent1" X="40" Y="50" />
+        <Sprite Name="Ent2" X="50" Y="50" />
+        <Sprite Name="Ent3" X="100" Y="60" />
+        <Sprite Name="Ent4" X="110" Y="60" />
+        <Sprite Name="Ghost1" X="120" Y="60" />
+        <Sprite Name="Ghost2" X="130" Y="60" />
+        <Sprite Name="DragonSerpent" X="60" Y="30" />
+        <Sprite Name="Snake1" X="0" Y="100" />
+        <Sprite Name="Snake2" X="10" Y="100" />
+        <Sprite Name="Snake3" X="20" Y="100" />
+    </SpriteGroup>
+
+    <SpriteGroup Name="Animals" FilePath="./BitBonanza/Creatures.png">
+        <Sprite Name="Fox1" X="0" Y="0" />
+        <Sprite Name="Fox2" X="10" Y="0" />
+        <Sprite Name="Bunny1" X="20" Y="0" />
+        <Sprite Name="Bunny2" X="30" Y="0" />
+        <Sprite Name="Chicken1" X="0" Y="10" />
+        <Sprite Name="Chicken2" X="10" Y="10" />
+        <Sprite Name="Dodo" X="40" Y="10" />
+        <Sprite Name="Squirrel" X="0" Y="30" />
+        <Sprite Name="Slug" X="20" Y="70" />
+        <Sprite Name="Snail.Antennae" X="80" Y="60" />
+        <Sprite Name="Snail" X="90" Y="60" />
+        <Sprite Name="Fish1" X="80" Y="0" />
+        <Sprite Name="Fish2" X="90" Y="0" />
+        <Sprite Name="Fish3" X="100" Y="0" />
+        <Sprite Name="Jellyfish1" X="120" Y="10" />
+        <Sprite Name="Jellyfish2" X="130" Y="10" />
+        <Sprite Name="Hippo" X="60" Y="20" />
+        <Sprite Name="Pig" X="70" Y="20" />
+        <Sprite Name="Unicorn" X="120" Y="40" />
+        <Sprite Name="Horse" X="20" Y="80" />
+        <Sprite Name="Capybara" X="60" Y="90" />
+        <Sprite Name="Reindeer" X="60" Y="110" />
+        <Sprite Name="Walrus" X="40" Y="110" />
+        <Sprite Name="PineTree.1" X="80" Y="110" />
+        <Sprite Name="PineTree.2" X="100" Y="110" />
+        <Sprite Name="Snowman" X="120" Y="110" />
+    </SpriteGroup>
+
+    <SpriteGroup Name="Robots" FilePath="./BitBonanza/Creatures.png">
+        <Sprite Name="Turret" X="80" Y="90" />
+        <Sprite Name="Robot1" X="80" Y="80" />
+        <Sprite Name="Robot2" X="80" Y="100" />
+        <Sprite Name="Robot3" X="100" Y="80" />
+        <Sprite Name="Robot4" X="100" Y="90" />
+        <Sprite Name="Robot5" X="100" Y="100" />
+        <Sprite Name="Robot6" X="120" Y="80" />
+        <Sprite Name="Robot7" X="120" Y="90" />
+    </SpriteGroup>
+
+    <SpriteGroup Name="Big" FilePath="./BitBonanza/Creatures.png">
+        <Sprite Name="DemonBat" X="0" Y="130" W="30" H="20" />
+        <Sprite Name="GiantBat" X="0" Y="150" W="30" H="10" />
+        <Sprite Name="Snake" X="30" Y="130" W="20" H="20" />
+        <Sprite Name="SlimeBlue" X="30" Y="150" W="20" H="10" />
+        <Sprite Name="Robot" X="50" Y="130" W="20" H="20" />
+        <Sprite Name="AlienShip" X="70" Y="130" W="20" H="20" />
+        <Sprite Name="SeaMonster" X="60" Y="150" W="30" H="10" />
+        <Sprite Name="Ghost" X="90" Y="130" W="30" H="20" />
+        <Sprite Name="Bat" X="90" Y="150" W="30" H="20" />
+        <Sprite Name="JackOLantern" X="120" Y="130" W="20" H="20" />
+        <Sprite Name="PineTree1" X="0" Y="160" W="20" H="20" />
+        <Sprite Name="PineTree2" X="20" Y="160" W="20" H="20" />
+        <Sprite Name="Snowman" X="40" Y="160" W="20" H="20" />
+    </SpriteGroup>
+
+    <SpriteGroup Name="People" FilePath="BitBonanza/People.png">
+        <!-- They're all definitely different, but I have no idea what to call them... -->
+        <Sprite X="0" Y="0" Name="Skin1" />
+        <Sprite X="0" Y="20" Name="Skin2" />
+        <Sprite X="0" Y="40" Name="Skin3" />
+        <Sprite X="0" Y="60" Name="Skin4" />
+        <Sprite X="0" Y="80" Name="Skin5" />
+        <Sprite X="0" Y="100" Name="Skin6" />
+        <Sprite X="0" Y="120" Name="Skin7" />
+        <Sprite X="0" Y="140" Name="Skin8" />
+        <Sprite X="0" Y="160" Name="Skin9" />
+        <Sprite X="0" Y="180" Name="Skin10" />
+        <Sprite X="0" Y="200" Name="Skin11" />
+        <Sprite X="0" Y="220" Name="Skin12" />
+        <Sprite X="0" Y="240" Name="Skin13" />
+        <Sprite X="0" Y="260" Name="Skin14" />
+
+        <Sprite X="30" Y="0" Name="Skin1.Rocks" />
+        <Sprite X="30" Y="20" Name="Skin2.Rocks" />
+        <Sprite X="30" Y="40" Name="Skin3.Rocks" />
+        <Sprite X="30" Y="60" Name="Skin4.Rocks" />
+        <Sprite X="30" Y="80" Name="Skin5.Rocks" />
+        <Sprite X="30" Y="100" Name="Skin6.Rocks" />
+        <Sprite X="30" Y="120" Name="Skin7.Rocks" />
+        <Sprite X="30" Y="140" Name="Skin8.Rocks" />
+        <Sprite X="30" Y="160" Name="Skin9.Rocks" />
+        <Sprite X="30" Y="180" Name="Skin10.Rocks" />
+        <Sprite X="30" Y="200" Name="Skin11.Rocks" />
+        <Sprite X="30" Y="220" Name="Skin12.Rocks" />
+        <Sprite X="30" Y="240" Name="Skin13.Rocks" />
+        <Sprite X="30" Y="260" Name="Skin14.Rocks" />
+
+        <Sprite X="60" Y="0" Name="Skin1.Bow" />
+        <Sprite X="60" Y="20" Name="Skin2.Bow" />
+        <Sprite X="60" Y="40" Name="Skin3.Bow" />
+        <Sprite X="60" Y="60" Name="Skin4.Bow" />
+        <Sprite X="60" Y="80" Name="Skin5.Bow" />
+        <Sprite X="60" Y="100" Name="Skin6.Bow" />
+        <Sprite X="60" Y="120" Name="Skin7.Bow" />
+        <Sprite X="60" Y="140" Name="Skin8.Bow" />
+        <Sprite X="60" Y="160" Name="Skin9.Bow" />
+        <Sprite X="60" Y="180" Name="Skin10.Bow" />
+        <Sprite X="60" Y="200" Name="Skin11.Bow" />
+        <Sprite X="60" Y="220" Name="Skin12.Bow" />
+        <Sprite X="60" Y="240" Name="Skin13.Bow" />
+        <Sprite X="60" Y="260" Name="Skin14.Bow" />
+
+        <Sprite X="90" Y="0" Name="Skin1.Scepter" />
+        <Sprite X="90" Y="20" Name="Skin2.Scepter" />
+        <Sprite X="90" Y="40" Name="Skin3.Scepter" />
+        <Sprite X="90" Y="60" Name="Skin4.Scepter" />
+        <Sprite X="90" Y="80" Name="Skin5.Scepter" />
+        <Sprite X="90" Y="100" Name="Skin6.Scepter" />
+        <Sprite X="90" Y="120" Name="Skin7.Scepter" />
+        <Sprite X="90" Y="140" Name="Skin8.Scepter" />
+        <Sprite X="90" Y="160" Name="Skin9.Scepter" />
+        <Sprite X="90" Y="180" Name="Skin10.Scepter" />
+        <Sprite X="90" Y="200" Name="Skin11.Scepter" />
+        <Sprite X="90" Y="220" Name="Skin12.Scepter" />
+        <Sprite X="90" Y="240" Name="Skin13.Scepter" />
+        <Sprite X="90" Y="260" Name="Skin14.Scepter" />
+
+        <Sprite X="120" Y="0" Name="Skin1.Staff" />
+        <Sprite X="120" Y="20" Name="Skin2.Staff" />
+        <Sprite X="120" Y="40" Name="Skin3.Staff" />
+        <Sprite X="120" Y="60" Name="Skin4.Staff" />
+        <Sprite X="120" Y="80" Name="Skin5.Staff" />
+        <Sprite X="120" Y="100" Name="Skin6.Staff" />
+        <Sprite X="120" Y="120" Name="Skin7.Staff" />
+        <Sprite X="120" Y="140" Name="Skin8.Staff" />
+        <Sprite X="120" Y="160" Name="Skin9.Staff" />
+        <Sprite X="120" Y="180" Name="Skin10.Staff" />
+        <Sprite X="120" Y="200" Name="Skin11.Staff" />
+        <Sprite X="120" Y="220" Name="Skin12.Staff" />
+        <Sprite X="120" Y="240" Name="Skin13.Staff" />
+        <Sprite X="120" Y="260" Name="Skin14.Staff" />
+
+        <Sprite X="150" Y="0" Name="Skin1.Gun" />
+        <Sprite X="150" Y="20" Name="Skin2.Gun" />
+        <Sprite X="150" Y="40" Name="Skin3.Gun" />
+        <Sprite X="150" Y="60" Name="Skin4.Gun" />
+        <Sprite X="150" Y="80" Name="Skin5.Gun" />
+        <Sprite X="150" Y="100" Name="Skin6.Gun" />
+        <Sprite X="150" Y="120" Name="Skin7.Gun" />
+        <Sprite X="150" Y="140" Name="Skin8.Gun" />
+        <Sprite X="150" Y="160" Name="Skin9.Gun" />
+        <Sprite X="150" Y="180" Name="Skin10.Gun" />
+        <Sprite X="150" Y="200" Name="Skin11.Gun" />
+        <Sprite X="150" Y="220" Name="Skin12.Gun" />
+        <Sprite X="150" Y="240" Name="Skin13.Gun" />
+        <Sprite X="150" Y="260" Name="Skin14.Gun" />
+
+        <Sprite X="180" Y="0" Name="Skin1.Boomerang" />
+        <Sprite X="180" Y="20" Name="Skin2.Boomerang" />
+        <Sprite X="180" Y="40" Name="Skin3.Boomerang" />
+        <Sprite X="180" Y="60" Name="Skin4.Boomerang" />
+        <Sprite X="180" Y="80" Name="Skin5.Boomerang" />
+        <Sprite X="180" Y="100" Name="Skin6.Boomerang" />
+        <Sprite X="180" Y="120" Name="Skin7.Boomerang" />
+        <Sprite X="180" Y="140" Name="Skin8.Boomerang" />
+        <Sprite X="180" Y="160" Name="Skin9.Boomerang" />
+        <Sprite X="180" Y="180" Name="Skin10.Boomerang" />
+        <Sprite X="180" Y="200" Name="Skin11.Boomerang" />
+        <Sprite X="180" Y="220" Name="Skin12.Boomerang" />
+        <Sprite X="180" Y="240" Name="Skin13.Boomerang" />
+        <Sprite X="180" Y="260" Name="Skin14.Boomerang" />
+        <Sprite X="190" Y="0" Name="Skin1.Boomerang.Shield" />
+        <Sprite X="190" Y="20" Name="Skin2.Boomerang.Shield" />
+        <Sprite X="190" Y="40" Name="Skin3.Boomerang.Shield" />
+        <Sprite X="190" Y="60" Name="Skin4.Boomerang.Shield" />
+        <Sprite X="190" Y="80" Name="Skin5.Boomerang.Shield" />
+        <Sprite X="190" Y="100" Name="Skin6.Boomerang.Shield" />
+        <Sprite X="190" Y="120" Name="Skin7.Boomerang.Shield" />
+        <Sprite X="190" Y="140" Name="Skin8.Boomerang.Shield" />
+        <Sprite X="190" Y="160" Name="Skin9.Boomerang.Shield" />
+        <Sprite X="190" Y="180" Name="Skin10.Boomerang.Shield" />
+        <Sprite X="190" Y="200" Name="Skin11.Boomerang.Shield" />
+        <Sprite X="190" Y="220" Name="Skin12.Boomerang.Shield" />
+        <Sprite X="190" Y="240" Name="Skin13.Boomerang.Shield" />
+        <Sprite X="190" Y="260" Name="Skin14.Boomerang.Shield" />
+
+        <Sprite X="210" Y="0" Name="Skin1.Sword" />
+        <Sprite X="210" Y="20" Name="Skin2.Sword" />
+        <Sprite X="210" Y="40" Name="Skin3.Sword" />
+        <Sprite X="210" Y="60" Name="Skin4.Sword" />
+        <Sprite X="210" Y="80" Name="Skin5.Sword" />
+        <Sprite X="210" Y="100" Name="Skin6.Sword" />
+        <Sprite X="210" Y="120" Name="Skin7.Sword" />
+        <Sprite X="210" Y="140" Name="Skin8.Sword" />
+        <Sprite X="210" Y="160" Name="Skin9.Sword" />
+        <Sprite X="210" Y="180" Name="Skin10.Sword" />
+        <Sprite X="210" Y="200" Name="Skin11.Sword" />
+        <Sprite X="210" Y="220" Name="Skin12.Sword" />
+        <Sprite X="210" Y="240" Name="Skin13.Sword" />
+        <Sprite X="210" Y="260" Name="Skin14.Sword" />
+        <Sprite X="220" Y="0" Name="Skin1.Sword.Shield" />
+        <Sprite X="220" Y="20" Name="Skin2.Sword.Shield" />
+        <Sprite X="220" Y="40" Name="Skin3.Sword.Shield" />
+        <Sprite X="220" Y="60" Name="Skin4.Sword.Shield" />
+        <Sprite X="220" Y="80" Name="Skin5.Sword.Shield" />
+        <Sprite X="220" Y="100" Name="Skin6.Sword.Shield" />
+        <Sprite X="220" Y="120" Name="Skin7.Sword.Shield" />
+        <Sprite X="220" Y="140" Name="Skin8.Sword.Shield" />
+        <Sprite X="220" Y="160" Name="Skin9.Sword.Shield" />
+        <Sprite X="220" Y="180" Name="Skin10.Sword.Shield" />
+        <Sprite X="220" Y="200" Name="Skin11.Sword.Shield" />
+        <Sprite X="220" Y="220" Name="Skin12.Sword.Shield" />
+        <Sprite X="220" Y="240" Name="Skin13.Sword.Shield" />
+        <Sprite X="220" Y="260" Name="Skin14.Sword.Shield" />
+
+        <Sprite X="240" Y="0" Name="Skin1.Dagger" />
+        <Sprite X="240" Y="20" Name="Skin2.Dagger" />
+        <Sprite X="240" Y="40" Name="Skin3.Dagger" />
+        <Sprite X="240" Y="60" Name="Skin4.Dagger" />
+        <Sprite X="240" Y="80" Name="Skin5.Dagger" />
+        <Sprite X="240" Y="100" Name="Skin6.Dagger" />
+        <Sprite X="240" Y="120" Name="Skin7.Dagger" />
+        <Sprite X="240" Y="140" Name="Skin8.Dagger" />
+        <Sprite X="240" Y="160" Name="Skin9.Dagger" />
+        <Sprite X="240" Y="180" Name="Skin10.Dagger" />
+        <Sprite X="240" Y="200" Name="Skin11.Dagger" />
+        <Sprite X="240" Y="220" Name="Skin12.Dagger" />
+        <Sprite X="240" Y="240" Name="Skin13.Dagger" />
+        <Sprite X="240" Y="260" Name="Skin14.Dagger" />
+        <Sprite X="250" Y="0" Name="Skin1.Dagger.Shield" />
+        <Sprite X="250" Y="20" Name="Skin2.Dagger.Shield" />
+        <Sprite X="250" Y="40" Name="Skin3.Dagger.Shield" />
+        <Sprite X="250" Y="60" Name="Skin4.Dagger.Shield" />
+        <Sprite X="250" Y="80" Name="Skin5.Dagger.Shield" />
+        <Sprite X="250" Y="100" Name="Skin6.Dagger.Shield" />
+        <Sprite X="250" Y="120" Name="Skin7.Dagger.Shield" />
+        <Sprite X="250" Y="140" Name="Skin8.Dagger.Shield" />
+        <Sprite X="250" Y="160" Name="Skin9.Dagger.Shield" />
+        <Sprite X="250" Y="180" Name="Skin10.Dagger.Shield" />
+        <Sprite X="250" Y="200" Name="Skin11.Dagger.Shield" />
+        <Sprite X="250" Y="220" Name="Skin12.Dagger.Shield" />
+        <Sprite X="250" Y="240" Name="Skin13.Dagger.Shield" />
+        <Sprite X="250" Y="260" Name="Skin14.Dagger.Shield" />
+
+        <Sprite X="270" Y="0" Name="Skin1.Pike" />
+        <Sprite X="270" Y="20" Name="Skin2.Pike" />
+        <Sprite X="270" Y="40" Name="Skin3.Pike" />
+        <Sprite X="270" Y="60" Name="Skin4.Pike" />
+        <Sprite X="270" Y="80" Name="Skin5.Pike" />
+        <Sprite X="270" Y="100" Name="Skin6.Pike" />
+        <Sprite X="270" Y="120" Name="Skin7.Pike" />
+        <Sprite X="270" Y="140" Name="Skin8.Pike" />
+        <Sprite X="270" Y="160" Name="Skin9.Pike" />
+        <Sprite X="270" Y="180" Name="Skin10.Pike" />
+        <Sprite X="270" Y="200" Name="Skin11.Pike" />
+        <Sprite X="270" Y="220" Name="Skin12.Pike" />
+        <Sprite X="270" Y="240" Name="Skin13.Pike" />
+        <Sprite X="270" Y="260" Name="Skin14.Pike" />
+        <Sprite X="280" Y="0" Name="Skin1.Pike.Shield" />
+        <Sprite X="280" Y="20" Name="Skin2.Pike.Shield" />
+        <Sprite X="280" Y="40" Name="Skin3.Pike.Shield" />
+        <Sprite X="280" Y="60" Name="Skin4.Pike.Shield" />
+        <Sprite X="280" Y="80" Name="Skin5.Pike.Shield" />
+        <Sprite X="280" Y="100" Name="Skin6.Pike.Shield" />
+        <Sprite X="280" Y="120" Name="Skin7.Pike.Shield" />
+        <Sprite X="280" Y="140" Name="Skin8.Pike.Shield" />
+        <Sprite X="280" Y="160" Name="Skin9.Pike.Shield" />
+        <Sprite X="280" Y="180" Name="Skin10.Pike.Shield" />
+        <Sprite X="280" Y="200" Name="Skin11.Pike.Shield" />
+        <Sprite X="280" Y="220" Name="Skin12.Pike.Shield" />
+        <Sprite X="280" Y="240" Name="Skin13.Pike.Shield" />
+        <Sprite X="280" Y="260" Name="Skin14.Pike.Shield" />
+
+        <Sprite X="300" Y="0" Name="Skin1.Glaive" />
+        <Sprite X="300" Y="20" Name="Skin2.Glaive" />
+        <Sprite X="300" Y="40" Name="Skin3.Glaive" />
+        <Sprite X="300" Y="60" Name="Skin4.Glaive" />
+        <Sprite X="300" Y="80" Name="Skin5.Glaive" />
+        <Sprite X="300" Y="100" Name="Skin6.Glaive" />
+        <Sprite X="300" Y="120" Name="Skin7.Glaive" />
+        <Sprite X="300" Y="140" Name="Skin8.Glaive" />
+        <Sprite X="300" Y="160" Name="Skin9.Glaive" />
+        <Sprite X="300" Y="180" Name="Skin10.Glaive" />
+        <Sprite X="300" Y="200" Name="Skin11.Glaive" />
+        <Sprite X="300" Y="220" Name="Skin12.Glaive" />
+        <Sprite X="300" Y="240" Name="Skin13.Glaive" />
+        <Sprite X="300" Y="260" Name="Skin14.Glaive" />
+        <Sprite X="310" Y="0" Name="Skin1.Glaive.Shield" />
+        <Sprite X="310" Y="20" Name="Skin2.Glaive.Shield" />
+        <Sprite X="310" Y="40" Name="Skin3.Glaive.Shield" />
+        <Sprite X="310" Y="60" Name="Skin4.Glaive.Shield" />
+        <Sprite X="310" Y="80" Name="Skin5.Glaive.Shield" />
+        <Sprite X="310" Y="100" Name="Skin6.Glaive.Shield" />
+        <Sprite X="310" Y="120" Name="Skin7.Glaive.Shield" />
+        <Sprite X="310" Y="140" Name="Skin8.Glaive.Shield" />
+        <Sprite X="310" Y="160" Name="Skin9.Glaive.Shield" />
+        <Sprite X="310" Y="180" Name="Skin10.Glaive.Shield" />
+        <Sprite X="310" Y="200" Name="Skin11.Glaive.Shield" />
+        <Sprite X="310" Y="220" Name="Skin12.Glaive.Shield" />
+        <Sprite X="310" Y="240" Name="Skin13.Glaive.Shield" />
+        <Sprite X="310" Y="260" Name="Skin14.Glaive.Shield" />
+    </SpriteGroup>
+
+    <SpriteGroup Name="UI" FilePath="BitBonanza/UI.png">
+        <SpriteGroup Name="StatusEffects">
+            <!-- Row 1 -->
+            <Sprite X="0" Y="0" Name="TriplePlus" />
+            <Sprite X="10" Y="0" Name="TripleMinus" />
+            <Sprite X="20" Y="0" Name="Plus" />
+            <Sprite X="30" Y="0" Name="Minus" />
+            <Sprite X="40" Y="0" Name="ArrowUp" />
+            <Sprite X="50" Y="0" Name="ArrowDown" />
+            <Sprite X="60" Y="0" Name="ArrowUpFast" />
+            <Sprite X="70" Y="0" Name="ArrowDownFast" />
+            <Sprite X="80" Y="0" Name="CheckMark" />
+            <Sprite X="90" Y="0" Name="CrossMark" />
+            <Sprite X="100" Y="0" Name="CheckMark.Thick" />
+            <Sprite X="110" Y="0" Name="CrossMark.Thick" />
+            <Sprite X="120" Y="0" Name="CheckMark.Bones" />
+            <Sprite X="130" Y="0" Name="CrossMark.Bones" />
+            <Sprite X="140" Y="0" Name="CheckMark.Bones.Thick" />
+            <Sprite X="150" Y="0" Name="CrossMark.Bones.Thick" />
+            <!-- Row 2 -->
+            <Sprite X="0" Y="10" Name="Attack.Plus" />
+            <Sprite X="10" Y="10" Name="Attack.Minus" />
+            <Sprite X="20" Y="10" Name="Attack.Up" />
+            <Sprite X="30" Y="10" Name="Attack.Down" />
+            <Sprite X="40" Y="10" Name="Defense.Plus" />
+            <Sprite X="50" Y="10" Name="Defense.Minus" />
+            <Sprite X="60" Y="10" Name="Defense.Up" />
+            <Sprite X="70" Y="10" Name="Defense.Down" />
+            <!-- Row 3 -->
+            <Sprite X="0" Y="20" Name="Agility.Plus" />
+            <Sprite X="10" Y="20" Name="Agility.Minus" />
+            <Sprite X="20" Y="20" Name="Agility.Up" />
+            <Sprite X="30" Y="20" Name="Agility.Down" />
+            <Sprite X="40" Y="20" Name="Speed.Plus" />
+            <Sprite X="50" Y="20" Name="Speed.Minus" />
+            <Sprite X="60" Y="20" Name="Speed.Up" />
+            <Sprite X="70" Y="20" Name="Speed.Down" />
+            <!-- Row 4 -->
+            <Sprite X="0" Y="30" Name="XP.Plus" />
+            <Sprite X="10" Y="30" Name="XP.Minus" />
+            <Sprite X="20" Y="30" Name="XP.Up" />
+            <Sprite X="30" Y="30" Name="XP.Down" />
+            <Sprite X="40" Y="30" Name="HP.Plus" />
+            <Sprite X="50" Y="30" Name="HP.Minus" />
+            <Sprite X="60" Y="30" Name="HP.Up" />
+            <Sprite X="70" Y="30" Name="HP.Down" />
+        </SpriteGroup>
+
+        <SpriteGroup Name="Arrows">
+            <!-- Row 5 -->
+            <Sprite X="0" Y="40" Name="Up.Chevron" />
+            <Sprite X="10" Y="40" Name="Right.Chevron" />
+            <Sprite X="20" Y="40" Name="Up.Chevron.Small" />
+            <Sprite X="30" Y="40" Name="Right.Chevron.Small" />
+            <Sprite X="40" Y="40" Name="Up" />
+            <Sprite X="50" Y="40" Name="Right" />
+            <Sprite X="60" Y="40" Name="Up.Small" />
+            <Sprite X="70" Y="40" Name="Right.Small" />
+            <!-- Row 6 -->
+            <Sprite X="0" Y="50" Name="Left.Chevron" />
+            <Sprite X="10" Y="50" Name="Down.Chevron" />
+            <Sprite X="20" Y="50" Name="Left.Chevron.Small" />
+            <Sprite X="30" Y="50" Name="Down.Chevron.Small" />
+            <Sprite X="40" Y="50" Name="Left" />
+            <Sprite X="50" Y="50" Name="Down" />
+            <Sprite X="60" Y="50" Name="Left.Small" />
+            <Sprite X="70" Y="50" Name="Down.Small" />
+        </SpriteGroup>
+
+        <SpriteGroup Name="Callouts">
+            <!-- Row 7 -->
+            <Sprite X="0" Y="60" Name="SpeechBubble.Round" />
+            <Sprite X="10" Y="60" Name="SpeechBubble.Square" />
+            <Sprite X="20" Y="60" Name="Hourglass" />
+            <Sprite X="30" Y="60" Name="Ellipsis" />
+            <Sprite X="40" Y="60" Name="ExclamationMark" />
+            <Sprite X="50" Y="60" Name="QuestionMark" />
+        </SpriteGroup>
+
+        <SpriteGroup Name="Symbols">
+            <!-- Still row 7; these are part of both groups. -->
+            <Sprite X="40" Y="60" Name="ExclamationMark" />
+            <Sprite X="50" Y="60" Name="QuestionMark" />
+            <Sprite X="60" Y="60" Name="Plus" />
+            <Sprite X="70" Y="60" Name="Minus" />
+            <Sprite X="80" Y="60" Name="Times" />
+        </SpriteGroup>
+
+        <SpriteGroup Name="AttackTypes">
+            <!-- Row 8 -->
+            <Sprite X="0" Y="70" Name="Lightning.Ver2" />
+            <Sprite X="10" Y="70" Name="Lightning" />
+            <Sprite X="20" Y="70" Name="Fire" />
+            <Sprite X="30" Y="70" Name="Fire.V2" />
+            <Sprite X="40" Y="70" Name="Ice" />
+            <Sprite X="50" Y="70" Name="Water" />
+            <Sprite X="60" Y="70" Name="Grass" />
+            <Sprite X="70" Y="70" Name="Grass.Ver2" />
+            <Sprite X="80" Y="70" Name="SkullAndBones.White" />
+            <Sprite X="90" Y="70" Name="SkullAndBones.Pink" />
+            <Sprite X="100" Y="70" Name="Skull.White" />
+            <Sprite X="110" Y="70" Name="Skull.Pink" />
+            <Sprite X="120" Y="70" Name="Piercing" /> <!-- No idea what this symbol could be... -->
+            <Sprite X="130" Y="70" Name="Poison" />
+            <Sprite X="140" Y="70" Name="Sound" /> <!-- This one is a mystery as well... -->
+            <Sprite X="150" Y="70" Name="Haze" />
+        </SpriteGroup>
+
+        <SpriteGroup Name="PopupEffects">
+            <Sprite X="160" Y="70" Name="Bubble.1" />
+            <Sprite X="170" Y="70" Name="Bubble.2" />
+            <Sprite X="180" Y="70" Name="Reload.Square" />
+            <Sprite X="190" Y="70" Name="Reload.Round" />
+            <Sprite X="200" Y="70" Name="BubblePop" />
+        </SpriteGroup>
+
+        <!-- Row 9 -->
+        <Sprite X="0" Y="80" Name="BrokenHeart" />
+        <Sprite X="10" Y="80" Name="Clock.1" />
+        <Sprite X="20" Y="80" Name="Clock.2" />
+        <Sprite X="30" Y="80" Name="Bone" />
+        <Sprite X="40" Y="80" Name="Paper" />
+        <Sprite X="50" Y="80" Name="Paper.Damaged" />
+        <Sprite X="60" Y="80" Name="Calendar" />
+        <Sprite X="70" Y="80" Name="Lock" />
+        <Sprite X="80" Y="80" Name="Lock.Unlocked" />
+        <Sprite X="90" Y="80" Name="Trophy" />
+        <Sprite X="100" Y="80" Name="Eye" />
+        <Sprite X="110" Y="80" Name="Eye.Slash" />
+        <SpriteGroup Name="Cursors">
+            <Sprite X="120" Y="80" Name="Filled" />
+            <Sprite X="130" Y="80" Name="Stroked" />
+            <Sprite X="140" Y="80" Name="Arrow.Filled" />
+            <Sprite X="150" Y="80" Name="Arrow.Stroked" />
+        </SpriteGroup>
+        <Sprite X="160" Y="80" Name="Skull1" />
+        <Sprite X="170" Y="80" Name="Skull2" />
+        <Sprite X="180" Y="80" Name="Skull3" />
+
+        <!-- Row 10 -->
+        <SpriteGroup Name="StatusBar">
+            <Sprite X="0" Y="90" Name="TwoBubbles.2" />
+            <Sprite X="10" Y="90" Name="TwoBubbles.1" />
+            <Sprite X="20" Y="90" Name="TwoBubbles.0" />
+            <Sprite X="30" Y="90" Name="Bubble.Full" />
+            <Sprite X="40" Y="90" Name="Bubble.Half" />
+            <Sprite X="50" Y="90" Name="Bubble.Empty" />
+            <Sprite X="60" Y="90" Name="TwoHearts.2" />
+            <Sprite X="70" Y="90" Name="TwoHearts.1" />
+            <Sprite X="80" Y="90" Name="TwoHearts.0" />
+            <Sprite X="90" Y="90" Name="Heart.Wide.Full" />
+            <Sprite X="100" Y="90" Name="Heart.Wide.Half" />
+            <Sprite X="110" Y="90" Name="Heart.Wide.Empty" />
+            <Sprite X="120" Y="90" Name="Heart.Full" />
+            <Sprite X="130" Y="90" Name="Heart.Half" />
+            <Sprite X="140" Y="90" Name="Heart.Empty" />
+            <Sprite X="150" Y="90" Name="TwoStars.2" />
+            <Sprite X="160" Y="90" Name="TwoStars.1" />
+            <Sprite X="170" Y="90" Name="TwoStars.0" />
+            <Sprite X="180" Y="90" Name="Star.Full" />
+            <Sprite X="190" Y="90" Name="Star.Half" />
+            <Sprite X="200" Y="90" Name="Star.Empty" />
+        </SpriteGroup>
+        <!-- (skipping the emojis) -->
+        <!-- Row 14 -->
+        <SpriteGroup Name="Dice">
+            <Sprite X="0" Y="130" Name="1.White" />
+            <Sprite X="10" Y="130" Name="2.White" />
+            <Sprite X="20" Y="130" Name="3.White" />
+            <Sprite X="30" Y="130" Name="4.White" />
+            <Sprite X="40" Y="130" Name="5.White" />
+            <Sprite X="50" Y="130" Name="6.White" />
+            <Sprite X="60" Y="130" Name="1.Red" />
+            <Sprite X="70" Y="130" Name="2.Red" />
+            <Sprite X="80" Y="130" Name="3.Red" />
+            <Sprite X="90" Y="130" Name="4.Red" />
+            <Sprite X="100" Y="130" Name="5.Red" />
+            <Sprite X="110" Y="130" Name="6.Red" />
+            <Sprite X="120" Y="130" Name="1.Blue" />
+            <Sprite X="130" Y="130" Name="2.Blue" />
+            <Sprite X="140" Y="130" Name="3.Blue" />
+            <Sprite X="150" Y="130" Name="4.Blue" />
+            <Sprite X="160" Y="130" Name="5.Blue" />
+            <Sprite X="170" Y="130" Name="6.Blue" />
+        </SpriteGroup>
+
+        <!-- Row 15 -->
+        <SpriteGroup Name="System">
+            <Sprite X="0" Y="140" Name="Save" />
+            <Sprite X="10" Y="140" Name="Mail" />
+            <Sprite X="20" Y="140" Name="Computer" />
+            <Sprite X="30" Y="140" Name="Maximize" />
+            <Sprite X="40" Y="140" Name="Minimize" />
+            <Sprite X="50" Y="140" Name="Volume.Lo" />
+            <Sprite X="60" Y="140" Name="Volume.Hi" />
+            <Sprite X="70" Y="140" Name="Volume.Plus" />
+            <Sprite X="80" Y="140" Name="Volume.Minus" />
+            <Sprite X="90" Y="140" Name="Microphone" />
+            <Sprite X="100" Y="140" Name="Magnify" />
+            <Sprite X="110" Y="140" Name="Magnify.Plus" />
+            <Sprite X="120" Y="140" Name="Magnify.Minus" />
+            <Sprite X="130" Y="140" Name="Trash" />
+        </SpriteGroup>
+
+        <!-- Row 16 -->
+        <SpriteGroup Name="Cursors">
+            <Sprite X="0" Y="150" Name="HandCursor.Three" />
+            <Sprite X="10" Y="150" Name="HandCursor.Two" />
+            <Sprite X="20" Y="150" Name="HandCursor.One" />
+            <Sprite X="30" Y="150" Name="HandCursor.Zero" />
+        </SpriteGroup>
+
+        <!-- (skipping the talismans) -->
+    </SpriteGroup>
+
+    <SpriteGroup Name="Goodies" FilePath="BitBonanza/GemsJewelsAndMoney.png">
+        <SpriteGroup Name="Gems">
+            <Sprite X="0" Y="0" Name="Diamond" />
+            <Sprite X="10" Y="0" Name="Emerald" />
+            <Sprite X="20" Y="0" Name="Amethyst" />
+            <Sprite X="30" Y="0" Name="Topaz" />
+            <Sprite X="40" Y="0" Name="Ruby" />
+        </SpriteGroup>
+        <SpriteGroup Name="Coins">
+            <Sprite X="0" Y="10" Name="CoinStack.Large" />
+            <Sprite X="10" Y="10" Name="CoinStack.Medium.1" />
+            <Sprite X="20" Y="10" Name="CoinStack.Medium.2" />
+            <Sprite X="30" Y="10" Name="CoinStack.Small" />
+            <Sprite X="40" Y="10" Name="CoinStack.Medium.3" />
+        </SpriteGroup>
+        <SpriteGroup Name="Bars">
+            <Sprite X="0" Y="20" Name="Bar.Gold" />
+            <Sprite X="10" Y="20" Name="Bar.Silver" />
+            <Sprite X="20" Y="20" Name="Bar.White" />
+            <Sprite X="30" Y="20" Name="Bar.Orange" />
+            <Sprite X="40" Y="20" Name="Bar.Brown" />
+            <Sprite X="50" Y="20" Name="Bar.Purple" />
+        </SpriteGroup>
+        <SpriteGroup Name="Coins">
+            <Sprite X="0" Y="30" Name="CoinGroup.Gold" />
+            <Sprite X="10" Y="30" Name="CoinGroup.Silver" />
+            <Sprite X="20" Y="30" Name="CoinGroup.White" />
+            <Sprite X="30" Y="30" Name="CoinGroup.Orange" />
+            <Sprite X="40" Y="30" Name="CoinGroup.Brown" />
+            <Sprite X="50" Y="30" Name="CoinGroup.Purple" />
+            <Sprite X="0" Y="40" Name="CoinsGroup2.Gold" />
+            <Sprite X="10" Y="40" Name="CoinsGroup2.Silver" />
+            <Sprite X="20" Y="40" Name="CoinsGroup2.White" />
+            <Sprite X="30" Y="40" Name="CoinsGroup2.Orange" />
+            <Sprite X="40" Y="40" Name="CoinsGroup2.Brown" />
+            <Sprite X="50" Y="40" Name="CoinsGroup2.Purple" />
+        </SpriteGroup>
+        <!-- Other -->
+        <Sprite X="60" Y="0" Name="Cash" />
+        <Sprite X="70" Y="0" Name="Cash.Double" />
+        <Sprite X="60" Y="10" Name="GoldPile.Small" />
+        <Sprite X="70" Y="10" Name="GoldPile.Large" />
+    </SpriteGroup>
+</SpriteList>
