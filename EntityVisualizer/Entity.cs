@@ -1,4 +1,4 @@
-namespace COIS2020.Visualization.EntityVisualizer;
+namespace TrentCOIS.Tools.Visualization.EntityViz;
 
 using System;
 using Microsoft.Xna.Framework;

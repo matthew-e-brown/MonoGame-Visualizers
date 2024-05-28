@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
-namespace COIS2020.Visualization.EntityVisualizer
+namespace TrentCOIS.Tools.Visualization.EntityViz
 {
     using SpriteSerialization;
 

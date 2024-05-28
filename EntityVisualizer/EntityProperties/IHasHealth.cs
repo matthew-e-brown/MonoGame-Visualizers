@@ -1,4 +1,4 @@
-namespace COIS2020.Visualization.EntityVisualizer;
+namespace TrentCOIS.Tools.Visualization.EntityViz;
 
 /// <summary>
 /// Represents an entity that has HP (for "hit points," AKA health).
