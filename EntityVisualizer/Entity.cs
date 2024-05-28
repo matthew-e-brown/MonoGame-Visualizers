@@ -49,13 +49,21 @@ public class Entity : IComparable<Entity>, IEquatable<Entity>
 
     // ------------------------------------------------------------------------
 
-
+    /// <summary>
+    /// Creates a new entity.
+    /// </summary>
     public Entity(string name) : this(name, new Vector2(0, 0))
     { }
 
+    /// <summary>
+    /// Creates a new entity at the given position.
+    /// </summary>
     public Entity(string name, float x, float y) : this(name, new Vector2(x, y))
     { }
 
+    /// <summary>
+    /// Creates a new entity at the given position.
+    /// </summary>
     public Entity(string name, Vector2 position)
     {
         ID = nextID++;
@@ -65,79 +73,22 @@ public class Entity : IComparable<Entity>, IEquatable<Entity>
     }
 
 
-    // ------------------------------------------------------------------------
-
-
-    /// <summary>
-    /// Updates this entity's position.
-    /// </summary>
-    ///
-    /// <param name="dx">An offset to add to this entity's x-position.</param>
-    /// <param name="dy">An offset to add to this entity's y-position.</param>
-    public void Move(float dx, float dy) => Move(new Vector2(dx, dy));
-
-    /// <summary>
-    /// Updates this entity's position.
-    /// </summary>
-    ///
-    /// <param name="deltaPos">An offset vector to add to this entity's position.</param>
-    public void Move(Vector2 deltaPos) => Position += deltaPos;
-
-    /// <summary>
-    /// Ensures that this entity's position does not fall outside of a given range.
-    /// </summary>
-    ///
-    /// <remarks>
-    /// There are two built-in <c>EntityXRange</c> and <c>EntityYRange</c> properties on the base <see
-    /// cref="Visualizer"/> class that may be useful here.
-    /// </remarks>
-    ///
-    /// <param name="xRange">A range of allowed x-values for this entity's position (min, max).</param>
-    /// <param name="yRange">A range of allowed y-values for this entity's position (min, max).</param>
-    public void ClampPosition((float, float) xRange, (float, float) yRange)
-    {
-        var (xMin, xMax) = xRange;
-        var (yMin, yMax) = yRange;
-        ClampPosition(xMin, xMax, yMin, yMax);
-    }
-
-    /// <summary>
-    /// Ensures that this entity's position does not fall outside of a given range.
-    /// </summary>
-    ///
-    /// <remarks>
-    /// There are two built-in <c>EntityXRange</c> and <c>EntityYRange</c> properties on the base <see
-    /// cref="Visualizer"/> class that may be useful here.
-    /// </remarks>
-    ///
-    /// <param name="xMin">The minimum allowed x-value for this entity's position.</param>
-    /// <param name="xMax">The maximum allowed x-value for this entity's position.</param>
-    /// <param name="yMin">The minimum allowed y-value for this entity's position.</param>
-    /// <param name="yMax">The maximum allowed y-value for this entity's position.</param>
-    public void ClampPosition(float xMin, float xMax, float yMin, float yMax)
-    {
-        float newX = Math.Clamp(Position.X, xMin, xMax);
-        float newY = Math.Clamp(Position.Y, yMin, yMax);
-        Position = new Vector2(newX, newY);
-    }
-
-
-    // ------------------------------------------------------------------------
-
-
-    // Just use the name for ToString by default; more involved entities can
+    /// <summary>Converts this entity into a string.</summary>
+    /// <remarks>By default, this just returns the entity's name.</remarks>
     public override string ToString() => Name;
 
-    // Sort by Id; if the other is null, put it after us (MinValue to ensure it's *always* after us).
+    /// <summary>Compares this entity against another.</summary>
+    /// <remarks>Comparisons are made using the entities' IDs. A null value is sorted after all others.</remarks>
     public int CompareTo(Entity? other) => (other is null) ? int.MinValue : ID.CompareTo(other.ID);
 
-    // Compare for equality based on ID.
+    /// <summary>Compares for entity equality based on ID.</summary>
     public bool Equals(Entity? other) => other?.ID.Equals(ID) ?? false;
 
-    // Hash as if this entity was just its ID.
+    /// <summary>Gets the hash code for this entity.</summary>
+    /// <remarks>This simply returns the <see cref="uint.GetHashCode">hash code of this entity's ID.</see></remarks>
     public override int GetHashCode() => ID.GetHashCode();
 
-    // Throw an error if a non-entity is compared.
+    /// <summary>Catch-all version of <see cref="Equals(Entity?)"/>.</summary>
     public override bool Equals(object? obj)
     {
         if (obj is not Entity entity) throw new ArgumentException("Object is not a Entity.", nameof(obj));

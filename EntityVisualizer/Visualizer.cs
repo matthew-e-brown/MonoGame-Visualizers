@@ -18,12 +18,19 @@ using FontStashSharp;
 // [TODO] Switch from inheritance to composition for `Game`. Would like to prevent students from having access to `Game`
 // fields like .Components, .Services, .GraphicsDevice, .LaunchParameters, etc.
 
+/// <summary>
+/// The main entrypoint of EntityVisualizer. This class handles user input, processes game-state updates, and draws to
+/// the screen.
+/// </summary>
 public abstract class Visualizer : Game
 {
-    /// <summary>
-    /// Random number generator.
-    /// </summary>
-    protected Random RNG { get; private set; }
+    /// <summary>Which key the user should press to play/pause the visualization.</summary>
+    public const Keys PlayKey = Keys.Space;
+
+    /// <summary>Which key the user should press to single-step the visualization.</summary>
+    public const Keys StepKey = Keys.Right;
+
+    // --------------------------------------------------------------
 
     /// <summary>
     /// How large each tile is, as a multiple of the base 10x10-pixel size.
@@ -62,9 +69,13 @@ public abstract class Visualizer : Game
     public bool IsPaused { get => !IsPlaying; set => IsPlaying = !value; }
 
     /// <summary>
-    /// Gets current game timestamp, or the number of "ticks" that have elapsed since the start of the simulation.
-    /// Useful for logging or for delaying an entity's actions for a certain number of frames.
+    /// The current game timestamp, or the number of "ticks" that have elapsed since the start of the simulation. Useful
+    /// for delaying an entity's actions for a certain number of frames. Also useful for logging purposes.
     /// </summary>
+    ///
+    /// <remarks>
+    /// This counter
+    /// </remarks>
     public uint CurrentTimestamp { get; private protected set; } = 0;
 
     /// <summary>
@@ -76,7 +87,6 @@ public abstract class Visualizer : Game
     /// How far an entity is allowed to move vertically under regular conditions..
     /// </summary>
     public (float, float) EntityYRange { get => (-(ArenaHeight * 0.5f - 0.5f), ArenaHeight * 0.5f - 0.5f); }
-
 
     // --------------------------------------------------------------
 
@@ -125,12 +135,8 @@ public abstract class Visualizer : Game
     private protected int textPanelLineLimit;           // Measured and configured when font is loaded.
     private protected Queue<string> messageLines;       // The lines of text drawn in the text panel.
     private protected StringBuilder logBuilder;         // Queued lines are merged together and printed all at once.
-    private protected bool shouldLogNextFrame = false;  // If calls to LogMessage should use the *next* frame instead.
 
     private protected bool forceStop = false;           // Like `IsPaused`, but cannot be resumed by the user.
-
-    public const Keys PlayKey = Keys.Space;             // Which key the user should press to play/pause the game.
-    public const Keys StepKey = Keys.Right;             // Which key the user should press to single-step the game.
 
     // NB: a queue is used for circular-buffer behaviour as opposed to avoid popping off the front of a List<string>
     // NB: StringBuilder is an instance member to avoid unnecessary reallocations
@@ -138,30 +144,25 @@ public abstract class Visualizer : Game
     private protected static Color MainBackgroundColor = new(32, 18, 8);
     private protected static Color DarkBackgroundColor = new(16, 9, 4);
 
-    /// <summary>
-    /// The random number generator that gets used if they don't pass in their own.
-    /// </summary>
-    private protected static Random defaultRNG = new();
-
 
     #endregion
 
     #region Constructors
 
 
-    // Spawn as 720p by default. Layout was tested with this size, though others are possible.
-    public Visualizer() : this(1280, 720, defaultRNG)
+    /// <summary>
+    /// Creates a new, uninitialized visualizer with a window size of 1280x720 (720p).
+    /// </summary>
+    public Visualizer() : this(1280, 720)
     { }
 
-    public Visualizer(int windowWidth, int windowHeight) : this(windowWidth, windowHeight, defaultRNG)
-    { }
-
-
-    public Visualizer(int windowWidth, int windowHeight, Random rng)
+    /// <summary>
+    /// Creates a new, uninitialized visualizer with a given resolution.
+    /// </summary>
+    public Visualizer(int windowWidth, int windowHeight)
     {
         this.windowWidth = windowWidth;
         this.windowHeight = windowHeight;
-        RNG = rng;
 
         graphics = new GraphicsDeviceManager(this);
         IsMouseVisible = true;
@@ -249,12 +250,7 @@ public abstract class Visualizer : Game
             // Leave the start un-trimmed so the user can do indenting if they'd like
             string trimmed = line.TrimEnd();
             if (includeTimestamp)
-            {
-                // If we're currently handling an update, we want the user's message to appear with the number of the
-                // *next* frame, since that's the frame we're about to put on the screen.
-                uint timestamp = shouldLogNextFrame ? CurrentTimestamp + 1 : CurrentTimestamp;
-                trimmed = $"[Tick {timestamp,-10}] {trimmed}";
-            }
+                trimmed = $"[Tick {CurrentTimestamp,5}] {trimmed}";
 
             messageLines.Enqueue(trimmed);
         }
@@ -270,6 +266,13 @@ public abstract class Visualizer : Game
     #region Setup
 
 
+    /// <summary>
+    /// Sets up any game-state that depends on things like the main window being set up.
+    /// </summary>
+    ///
+    /// <remarks>
+    /// You do not need to call this method. It is executed automatically when calling <c>Run()</c>.
+    /// </remarks>
     protected sealed override void Initialize()
     {
         // Configure window
@@ -291,7 +294,14 @@ public abstract class Visualizer : Game
         base.Initialize();
     }
 
-
+    /// <summary>
+    /// Loads and configures any data that depends on the graphics device being set up.
+    /// </summary>
+    ///
+    /// <remarks>
+    /// You do not need to call this method. It is executed automatically when calling <c>Run()</c>, as well as whenever
+    /// a graphics device reset occurs.
+    /// </remarks>
     protected sealed override void LoadContent()
     {
         spriteBatch = new SpriteBatch(GraphicsDevice);
@@ -363,6 +373,15 @@ public abstract class Visualizer : Game
     #region Update
 
 
+    /// <summary>
+    /// The internal MonoGame version of <see cref="Update()"/>.
+    /// </summary>
+    ///
+    /// <remarks>
+    /// This method is executed automatically every single frame. This is in contrast to the
+    /// <see cref="Update()">parameterless version of <c>Update</c></see>, which is only called after a given
+    /// <see cref="TickDelayMS">tick-delay</see> specified by the user (or when single-stepping).
+    /// </remarks>
     protected sealed override void Update(GameTime gameTime)
     {
         var currTime = gameTime.TotalGameTime;
@@ -384,16 +403,13 @@ public abstract class Visualizer : Game
     /// </remarks>
     private void CallUserUpdate(TimeSpan currTime)
     {
-        // // We are about to redraw, so the message should appear as part of the next frame.
-        // shouldLogNextFrame = true;
-        Update();
-        // shouldLogNextFrame = false;
-
         CurrentTimestamp += 1;
+        Update();
         lastTicked = currTime;
         mainPanel.Dirty = true;
         infoPanel.Dirty = true;
     }
+
 
     private void HandleInput(TimeSpan currTime)
     {
@@ -426,7 +442,7 @@ public abstract class Visualizer : Game
 
             if (nextDelay is TimeSpan delay)
             {
-                LogMessage($"{infoMsgIcon} Stepping from Tick {CurrentTimestamp} to Tick {CurrentTimestamp + 1}...", false);
+                LogMessage($"{infoMsgIcon} Stepping into Tick {CurrentTimestamp}...", false);
                 CallUserUpdate(currTime);
                 stepKeyTimer = currTime + delay;
             }
@@ -669,7 +685,13 @@ public abstract class Visualizer : Game
         spriteBatch.End();
     }
 
-
+    /// <summary>
+    /// Redraws the main screen.
+    /// </summary>
+    ///
+    /// <remarks>
+    /// You do not need to call this method. It is called automatically every frame.
+    /// </remarks>
     protected sealed override void Draw(GameTime gameTime)
     {
         // Update panel contents if necessary

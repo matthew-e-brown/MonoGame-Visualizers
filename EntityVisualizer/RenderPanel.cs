@@ -5,8 +5,8 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 
 /// <summary>
-/// A wrapper object that contains both a <see cref="Rectangle">region to be drawn within<see> as well as the <see
-/// cref="RenderTarget2D">render target it gets rendered onto.</see>
+/// A wrapper object that contains both a <see cref="Rectangle">region to be drawn within</see> as well as the
+/// <see cref="RenderTarget2D">render target it gets rendered onto.</see>
 /// </summary>
 internal class RenderPanel
 {

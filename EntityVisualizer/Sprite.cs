@@ -9,17 +9,31 @@ namespace TrentCOIS.Tools.Visualization.EntityViz
 {
     using SpriteSerialization;
 
+    /// <summary>
+    /// A pre-loaded texture with a position, width, and height. Sprites are loaded from XML files in
+    /// <c>Resources/Sprites</c> and are assigned <see cref="Name">names</see> with which they may be referred to by
+    /// implementors of the <see cref="Visualizer"/> class.
+    /// </summary>
+    ///
+    /// <remarks>
+    /// Currently, all sprites are loaded texture-atlas style, with an X- and Y-offset into the source image.
+    /// </remarks>
     public class Sprite
     {
+        /// <summary>This sprite's name.</summary>
         public readonly string Name;
+        /// <summary>A reference to the underlying texture atlas that this sprite lives within.</summary>
         public readonly Texture2D Texture;
+        /// <summary>Where in the <see cref="Texture">texture atlas</see> this sprite comes from.</summary>
         public Rectangle SourceRect;
 
+        /// <summary>How wide this sprite is, in pixels.</summary>
         public int Width { get => SourceRect.Width; set => SourceRect.Width = value; }
+        /// <summary>How tall this sprit is, in pixels.</summary>
         public int Height { get => SourceRect.Height; set => SourceRect.Height = value; }
 
         /// <summary>
-        /// Instantiation is done by the static <c cref="LoadAll(GraphicsDevice)" method. />
+        /// Instantiation is done by the static <c cref="LoadAll(GraphicsDevice)" /> method.
         /// </summary>
         private Sprite(string name, Texture2D texture, Rectangle location)
         {
@@ -48,18 +62,20 @@ namespace TrentCOIS.Tools.Visualization.EntityViz
 
         #region Drawing + overloads
 
+        // All these "no XML comments" warnings are very annoying... thankfully they're mostly copy-paste.
+
         /// <summary>
         /// Draws this sprite centered at a given point.
         /// </summary>
-        /// <param name="spriteBatch">A sprite batch to draw into.</param>
-        /// <param name="position">Where to position this sprite.</param>
+        /// <param name="spriteBatch">The sprite batch to draw into.</param>
+        /// <param name="pos">Where to position this sprite.</param>
         public void DrawCentered(SpriteBatch spriteBatch, Vector2 pos) => DrawCentered(spriteBatch, pos, Color.White);
 
         /// <summary>
         /// Draws this sprite centered at a given point.
         /// </summary>
-        /// <param name="spriteBatch">A sprite batch to draw into.</param>
-        /// <param name="position">Where to position this sprite.</param>
+        /// <param name="spriteBatch">The sprite batch to draw into.</param>
+        /// <param name="pos">Where to position this sprite.</param>
         /// <param name="tint">A color to tint the sprite with.</param>
         public void DrawCentered(SpriteBatch spriteBatch, Vector2 pos, Color tint) => DrawCentered(spriteBatch, (int)pos.X, (int)pos.Y, Width, Height, tint);
 
@@ -67,15 +83,19 @@ namespace TrentCOIS.Tools.Visualization.EntityViz
         /// <summary>
         /// Draws this sprite centered at a given point and at a given size.
         /// </summary>
-        /// <param name="spriteBatch">A sprite batch to draw into.</param>
-        /// <param name="position">Where to position this sprite.</param>
+        /// <param name="spriteBatch">The sprite batch to draw into.</param>
+        /// <param name="pos">Where to position this sprite.</param>
+        /// <param name="w">How wide to draw this sprite.</param>
+        /// <param name="h">How tall to draw this sprite.</param>
         public void DrawCentered(SpriteBatch spriteBatch, Vector2 pos, int w, int h) => DrawCentered(spriteBatch, pos, w, h, Color.White);
 
         /// <summary>
         /// Draws this sprite centered at a given point and at a given size.
         /// </summary>
-        /// <param name="spriteBatch">A sprite batch to draw into.</param>
-        /// <param name="position">Where to position this sprite.</param>
+        /// <param name="spriteBatch">The sprite batch to draw into.</param>
+        /// <param name="pos">Where to position this sprite.</param>
+        /// <param name="w">How wide to draw this sprite.</param>
+        /// <param name="h">How tall to draw this sprite.</param>
         /// <param name="tint">A color to tint the sprite with.</param>
         public void DrawCentered(SpriteBatch spriteBatch, Vector2 pos, int w, int h, Color tint) => DrawCentered(spriteBatch, (int)pos.X, (int)pos.Y, w, h, tint);
 
@@ -83,13 +103,17 @@ namespace TrentCOIS.Tools.Visualization.EntityViz
         /// <summary>
         /// Draws this sprite centered at a given point.
         /// </summary>
-        /// <param name="spriteBatch">A sprite batch to draw into.</param>
+        /// <param name="spriteBatch">The sprite batch to draw into.</param>
+        /// <param name="x">The x-coordinate of where to draw this sprite.</param>
+        /// <param name="y">The y-coordinate of where to draw this sprite.</param>
         public void DrawCentered(SpriteBatch spriteBatch, int x, int y) => DrawCentered(spriteBatch, x, y, Width, Height, Color.White);
 
         /// <summary>
         /// Draws this sprite centered at a given point.
         /// </summary>
-        /// <param name="spriteBatch">A sprite batch to draw into.</param>
+        /// <param name="spriteBatch">The sprite batch to draw into.</param>
+        /// <param name="x">The x-coordinate of where to draw this sprite.</param>
+        /// <param name="y">The y-coordinate of where to draw this sprite.</param>
         /// <param name="tint">A color to tint the sprite with.</param>
         public void DrawCentered(SpriteBatch spriteBatch, int x, int y, Color tint) => DrawCentered(spriteBatch, x, y, Width, Height, tint);
 
@@ -97,13 +121,21 @@ namespace TrentCOIS.Tools.Visualization.EntityViz
         /// <summary>
         /// Draws this sprite centered at a given point and at a given size.
         /// </summary>
-        /// <param name="spriteBatch">A sprite batch to draw into.</param>
+        /// <param name="spriteBatch">The sprite batch to draw into.</param>
+        /// <param name="x">The x-coordinate of where to draw this sprite.</param>
+        /// <param name="y">The y-coordinate of where to draw this sprite.</param>
+        /// <param name="w">How wide to draw this sprite.</param>
+        /// <param name="h">How tall to draw this sprite.</param>
         public void DrawCentered(SpriteBatch spriteBatch, int x, int y, int w, int h) => DrawCentered(spriteBatch, x, y, w, h, Color.White);
 
         /// <summary>
         /// Draws this sprite centered at a given point and at a given size.
         /// </summary>
-        /// <param name="spriteBatch">A sprite batch to draw into.</param>
+        /// <param name="spriteBatch">The sprite batch to draw into.</param>
+        /// <param name="x">The x-coordinate of where to draw this sprite.</param>
+        /// <param name="y">The y-coordinate of where to draw this sprite.</param>
+        /// <param name="w">How wide to draw this sprite.</param>
+        /// <param name="h">How tall to draw this sprite.</param>
         /// <param name="tint">A color to tint the sprite with.</param>
         public void DrawCentered(SpriteBatch spriteBatch, int x, int y, int w, int h, Color tint)
         {
@@ -116,13 +148,17 @@ namespace TrentCOIS.Tools.Visualization.EntityViz
         /// <summary>
         /// Draws this sprite with its top-left corner at a given X and Y position.
         /// </summary>
-        /// <param name="spriteBatch">A sprite batch to draw into.</param>
+        /// <param name="spriteBatch">The sprite batch to draw into.</param>
+        /// <param name="x">The x-coordinate of where to draw this sprite.</param>
+        /// <param name="y">The y-coordinate of where to draw this sprite.</param>
         public void Draw(SpriteBatch spriteBatch, int x, int y) => Draw(spriteBatch, x, y, Width, Height);
 
         /// <summary>
         /// Draws this sprite with its top-left corner at a given X and Y position.
         /// </summary>
-        /// <param name="spriteBatch">A sprite batch to draw into.</param>
+        /// <param name="spriteBatch">The sprite batch to draw into.</param>
+        /// <param name="x">The x-coordinate of where to draw this sprite.</param>
+        /// <param name="y">The y-coordinate of where to draw this sprite.</param>
         /// <param name="tint">A color to tint the sprite with.</param>
         public void Draw(SpriteBatch spriteBatch, int x, int y, Color tint) => Draw(spriteBatch, x, y, Width, Height, tint);
 
@@ -130,25 +166,38 @@ namespace TrentCOIS.Tools.Visualization.EntityViz
         /// <summary>
         /// Draws this sprite with its top-left corner at a given X and Y position and at a given size.
         /// </summary>
-        /// <param name="spriteBatch">A sprite batch to draw into.</param>
+        /// <param name="spriteBatch">The sprite batch to draw into.</param>
+        /// <param name="x">The x-coordinate of where to draw this sprite.</param>
+        /// <param name="y">The y-coordinate of where to draw this sprite.</param>
+        /// <param name="w">How wide to draw this sprite.</param>
+        /// <param name="h">How tall to draw this sprite.</param>
         public void Draw(SpriteBatch spriteBatch, int x, int y, int w, int h) => Draw(spriteBatch, new Rectangle(x, y, w, h));
 
+        /// <summary>
+        /// Draws this sprite with its top-left corner at a given X and Y position and at a given size.
+        /// </summary>
+        /// <param name="spriteBatch">The sprite batch to draw into.</param>
+        /// <param name="x">The x-coordinate of where to draw this sprite.</param>
+        /// <param name="y">The y-coordinate of where to draw this sprite.</param>
+        /// <param name="w">How wide to draw this sprite.</param>
+        /// <param name="h">How tall to draw this sprite.</param>
+        /// <param name="tint">A color to tint the sprite with.</param>
         public void Draw(SpriteBatch spriteBatch, int x, int y, int w, int h, Color tint) => Draw(spriteBatch, new Rectangle(x, y, w, h), tint);
 
 
         /// <summary>
         /// Draws this sprite, filling the given destination rectangle.
         /// </summary>
-        /// <param name="spriteBatch">A sprite batch to draw into.</param>
+        /// <param name="spriteBatch">The sprite batch to draw into.</param>
         /// <param name="dest">The destination location.</param>
-        /// <param name="tint">A color to tint the sprite with.</param>
         public void Draw(SpriteBatch spriteBatch, Rectangle dest) => Draw(spriteBatch, dest, Color.White);
 
         /// <summary>
         /// Draws this sprite, filling the given destination rectangle.
         /// </summary>
-        /// <param name="spriteBatch">A sprite batch to draw into.</param>
+        /// <param name="spriteBatch">The sprite batch to draw into.</param>
         /// <param name="dest">The destination location.</param>
+        /// <param name="tint">A color to tint the sprite with.</param>
         public void Draw(SpriteBatch spriteBatch, Rectangle dest, Color tint)
         {
             spriteBatch.Draw(Texture, dest, SourceRect, tint);
@@ -161,7 +210,10 @@ namespace TrentCOIS.Tools.Visualization.EntityViz
 
         #region XML Parsing
 
+        /// <summary>The folder where <see cref="LoadAll"/> will look for sprites.</summary>
         public static readonly string SpriteResourcePath;
+
+        /// <summary>The text that is inserted between different groups as defined in the XML files.</summary>
         public static readonly string SpriteGroupSeparator = "/"; // Groups = slash, sprite variants = dot
 
         static Sprite()
@@ -172,7 +224,9 @@ namespace TrentCOIS.Tools.Visualization.EntityViz
             SpriteResourcePath = Path.GetFullPath(spriteDir);
         }
 
-
+        /// <summary>
+        /// Loads all sprites from the <see cref="SpriteResourcePath">Resources</see> folder.
+        /// </summary>
         public static Dictionary<string, Sprite> LoadAll(GraphicsDevice graphicsDevice)
         {
             var xmlFiles = Directory.GetFiles(SpriteResourcePath, "*.xml");
@@ -304,6 +358,13 @@ namespace TrentCOIS.Tools.Visualization.EntityViz
 
     namespace SpriteSerialization
     {
+
+#pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
+
+        /// <summary>
+        /// Represents sprite information as parsed from internal XML files. This type is an implementation detail; it
+        /// only needs to be public in order for <see cref="XmlSerializer"/> to work properly.
+        /// </summary>
         [Serializable]
         [XmlRoot("SpriteList")] // When root, appears as "SpriteList" instead of "SpriteGroup".
         public record XmlSpriteGroup
@@ -320,6 +381,10 @@ namespace TrentCOIS.Tools.Visualization.EntityViz
             private XmlSpriteGroup() { } // https://stackoverflow.com/a/267727/10549827
         }
 
+        /// <summary>
+        /// Represents sprite information as parsed from internal XML files. This type is an implementation detail; it
+        /// only needs to be public in order for <see cref="XmlSerializer"/> to work properly.
+        /// </summary>
         [Serializable]
         public record struct XmlSprite
         {
@@ -336,6 +401,9 @@ namespace TrentCOIS.Tools.Visualization.EntityViz
                 W = H = 10;
             }
         }
+
+#pragma warning restore CS1591 // Missing XML comment for publicly visible type or member
+
     }
 
     #endregion
