@@ -638,7 +638,7 @@ public abstract class Visualizer : Game
             if (y + bh >= infoPanel.Height)
             {
                 y = 0;
-                x = bw + sp;
+                x += bw + sp;
             }
 
             if (x >= infoPanel.Width)

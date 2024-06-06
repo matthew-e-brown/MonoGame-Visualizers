@@ -3,7 +3,7 @@
   <!-- NuGet / package properties -->
   <PropertyGroup>
     <PackageId>TrentCOIS.Tools.Visualization.EntityViz</PackageId>
-    <Version>0.1.5</Version>
+    <Version>0.1.6</Version>
     <AssemblyName>TrentCOIS.EntityViz</AssemblyName>
 
     <Title>Entity Visualizer</Title>
