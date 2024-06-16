@@ -1,0 +1,20 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <PackageId>TrentCOIS.Tools.Visualization.Framework</PackageId>
+    <AssemblyName>TrentCOIS.VizFramework</AssemblyName>
+    <Version>0.1.0</Version>
+
+    <RootNamespace>TrentCOIS.Tools.Visualization</RootNamespace>
+
+    <Title>TrentCOIS Visualization Framework</Title>
+    <Authors>Matthew Brown</Authors>
+    <Description>A basic visualization framework for .NET built on-top of MonoGame.</Description>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="MonoGame.Framework.DesktopGL" Version="3.8.1.303" />
+    <PackageReference Include="FontStashSharp.MonoGame" Version="1.3.7" />
+  </ItemGroup>
+
+</Project>
