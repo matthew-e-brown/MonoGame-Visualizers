@@ -1,6 +1,7 @@
 namespace TrentCOIS.Tools.Visualization;
 
 using System;
+using TrentCOIS.Tools.Visualization.Input;
 
 /// <summary>
 /// The base for all animations and visualizations.
@@ -18,7 +19,7 @@ public abstract class Visualization
     /// </summary>
     /// <seealso cref="Run()"/>
     /// <seealso cref="Run(RenderOptions)"/>
-    internal Renderer? _renderer;
+    internal Renderer? renderer;
 
 
     /// <summary>
@@ -44,11 +45,11 @@ public abstract class Visualization
     /// <exception cref="InvalidOperationException">If this visualization has already been started.</exception>
     public void Run(RenderOptions? renderOptions)
     {
-        if (_renderer is not null)
+        if (renderer is not null)
             throw new InvalidOperationException("Attempted to start a visualization that has already started.");
 
-        _renderer = new Renderer(this, renderOptions);
-        _renderer.Run();
+        renderer = new Renderer(this, renderOptions);
+        renderer.Run();
     }
 
 
@@ -95,7 +96,9 @@ public abstract class Visualization
     /// This method is called automatically <b>once per frame,</b> and is where any logic that has to do with
     /// interactivity should go.
     /// </summary>
-    protected internal virtual void HandleInput()
+    /// <param name="gameTime">The amount of time that has passed since the visualization began.</param>
+    /// <param name="inputs">A game component for querying the state and changes of the user's input.</param>
+    protected internal virtual void HandleInput(TimeSpan gameTime, InputManager inputs)
     {
         // Default implementation does nothing.
     }
@@ -120,9 +123,9 @@ public abstract class Visualization
     /// <exception cref="InvalidOperationException">If this visualization hasn't been started yet.</exception>
     public void Pause()
     {
-        if (_renderer is null)
+        if (renderer is null)
             throw new InvalidOperationException("Attempted to resume a visualization that hasn't started yet.");
-        _renderer.IsPaused = true;
+        renderer.IsPaused = true;
     }
 
     /// <summary>
@@ -131,9 +134,9 @@ public abstract class Visualization
     /// <exception cref="InvalidOperationException">If this visualization hasn't been started yet.</exception>
     public void Resume()
     {
-        if (_renderer is null)
+        if (renderer is null)
             throw new InvalidOperationException("Attempted to resume a visualization that hasn't started yet.");
-        _renderer.IsPlaying = true;
+        renderer.IsPlaying = true;
     }
 
     /// <summary>
@@ -142,10 +145,10 @@ public abstract class Visualization
     /// <exception cref="InvalidOperationException">If this visualization hasn't been started yet.</exception>
     public void Exit()
     {
-        if (_renderer is null)
+        if (renderer is null)
             throw new InvalidOperationException("Attempted to exit a visualization that hasn't been started yet.");
-        _renderer.Exit();
-        _renderer.Dispose();
-        _renderer = null;
+        renderer.Exit();
+        renderer.Dispose();
+        renderer = null;
     }
 }

@@ -4,6 +4,7 @@ using System;
 using System.Diagnostics.CodeAnalysis;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using TrentCOIS.Tools.Visualization.Input;
 
 
 /// <summary>
@@ -50,6 +51,12 @@ public class Renderer : Game
     /// The <see cref="GraphicsDeviceManager" /> for this <see cref="Game">MonoGame <c>Game</c></see> instance.
     /// </summary>
     protected GraphicsDeviceManager Graphics { get; private set; }
+
+
+    /// <summary>
+    /// The <see cref="GameComponent"/> responsible for tracking user inputs.
+    /// </summary>
+    protected InputManager InputManager { get; private set; }
 
 
     /// <summary>
@@ -118,6 +125,9 @@ public class Renderer : Game
     {
         UserViz = visualization;
         Graphics = new GraphicsDeviceManager(this);
+
+        InputManager = new InputManager(this);
+        Components.Add(InputManager.ComponentInstance);
     }
 
 
@@ -143,22 +153,15 @@ public class Renderer : Game
     {
         // Configure the main window
         Window.AllowUserResizing = false;
-
         Graphics.IsFullScreen = false;
         Graphics.PreferredBackBufferWidth = WindowWidth;
         Graphics.PreferredBackBufferHeight = WindowHeight;
-
-        Graphics.DeviceResetting += OnGraphicsResetting;
-        Graphics.DeviceReset += OnGraphicsReset;
-
         Graphics.ApplyChanges();
 
-        // Unlike Load/Update/Draw, components' Initialization comes after we setup our stuff.
+        // Unlike Load/Update/Draw, Initialization of our components comes *after* we setup our stuff (since it's
+        // important).
         base.Initialize();
     }
-
-    private void OnGraphicsResetting(object? sender, EventArgs args) => GraphicsResetComplete = false;
-    private void OnGraphicsReset(object? sender, EventArgs args) => GraphicsResetComplete = true;
 
 
     /// <summary>
@@ -169,8 +172,8 @@ public class Renderer : Game
         MainSpriteBatch = new SpriteBatch(GraphicsDevice);
         MainScreen = new Surface();
 
-        base.LoadContent();     // Components' content (if any).
-        UserViz.LoadContent();  // The user's content.
+        base.LoadContent();
+        UserViz.LoadContent();
     }
 
 
@@ -180,8 +183,9 @@ public class Renderer : Game
     /// <param name="gameTime">The current game time.</param>
     protected override void Update(GameTime gameTime)
     {
-        base.Update(gameTime); // Components (if any) get updated first.
-        UserViz.HandleInput();
+        // Call the user's Input method after we update our components (i.e. the InputManager, since they need that).
+        base.Update(gameTime);
+        UserViz.HandleInput(gameTime.TotalGameTime, InputManager);
     }
 
 
@@ -202,7 +206,7 @@ public class Renderer : Game
 
         // The user's `Draw` method is called every single frame, even if their `Update` method didn't get called. That
         // allows their `HandleInput` method to update animation state.
-        base.Draw(gameTime);        // Components (if any) get drawn first.
-        UserViz.Draw(MainScreen);   // Then the visualization.
+        base.Draw(gameTime);        // Components (if any) get updated first.
+        UserViz.Draw(MainScreen);   // Then the user's.
     }
 }
