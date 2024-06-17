@@ -1,6 +1,7 @@
 namespace TrentCOIS.Tools.Visualization.Input;
 
 using System;
+using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
 
@@ -35,7 +36,7 @@ public class InputManager
     /// </summary>
     /// <remarks>
     /// <para>
-    /// Just like with the separation between <see cref="Visualization"/> and <see cref="Renderer"/>, composition is
+    /// Just like with the separation between <see cref="Visualization"/> and <see cref="GameRunner"/>, composition is
     /// used to hide the extra public/protected members that are inherited from the base class. That way, students'
     /// Intellisense is not filled with extra properties/methods that they shouldn't be calling.
     /// </para>
@@ -61,6 +62,16 @@ public class InputManager
     /// <summary>The state that the user's keyboard was in during the last frame.</summary>
     protected KeyboardState PrevKeys { get; private set; }
 
+    /// <summary>
+    /// How long a key must be held down for before it starts repeating keypresses.
+    /// </summary>
+    public TimeSpan KeyHoldFirstDelay { get; set; } = new(500 * TimeSpan.TicksPerMillisecond);
+
+    /// <summary>
+    /// How long a held key should wait before triggering a second event.
+    /// </summary>
+    public TimeSpan KeyHoldRepeatDelay { get; set; } = new(100 * TimeSpan.TicksPerMillisecond);
+
 
     // Cached results from KeyboardState.GetPressedKeys(). These are handy to have when iterating, since we can loop
     // over _just_ the pressed keys, instead of checking all 150+ possible keys.
@@ -68,6 +79,10 @@ public class InputManager
     private readonly Keys[] prevPressed;
     private int currKeyCount;
     private int prevKeyCount;
+
+    // Keeps track of when a given key is allowed to be pressed next.
+    // [FIXME] Switch this out with a more performant, index-based solution.
+    private readonly Dictionary<Keys, TimeSpan> keyHoldTimers;
 
 
     /// <summary>
@@ -139,6 +154,8 @@ public class InputManager
         prevPressed = new Keys[nKeys];
         currKeyCount = 0;
         prevKeyCount = 0;
+
+        keyHoldTimers = new Dictionary<Keys, TimeSpan>(nKeys);
     }
 
 
@@ -180,7 +197,7 @@ public class InputManager
 
         // Handle events once state has been updated
         HandleMouseEvents();
-        HandleKeyboardEvents();
+        HandleKeyboardEvents(gameTime.TotalGameTime);
     }
 
 
@@ -202,7 +219,7 @@ public class InputManager
     }
 
 
-    private void HandleKeyboardEvents()
+    private void HandleKeyboardEvents(TimeSpan currTime)
     {
         // Sort the range based on the numerical value of the enum instead of the arbitrary-ish order of KeyboardState.
         // The prevPressed array is already sorted, since we copied it from the old version of this array at the start
@@ -223,12 +240,14 @@ public class InputManager
                 // if oldKey < newKey, then oldKey is not in the new array. If it was, it would have come before
                 // whatever newKey we just ran into.
                 KeyReleased?.Invoke((Key)oldKey);
+                keyHoldTimers.Remove(oldKey);
                 oldIdx++;
             }
             else if (oldKey > newKey)
             {
                 // opposite: newKey is not in the old array, for the same reason as above.
                 KeyPressed?.Invoke((Key)newKey);
+                keyHoldTimers[newKey] = currTime + KeyHoldFirstDelay;
                 newIdx++;
             }
             else
@@ -236,6 +255,13 @@ public class InputManager
                 // otherwise, the key is in both arrays and is being held down.
                 newIdx++;
                 oldIdx++;
+
+                // Check if this key needs to fire a second event from being held down
+                if (currTime >= keyHoldTimers[newKey])
+                {
+                    KeyPressed?.Invoke((Key)newKey);
+                    keyHoldTimers[newKey] = currTime + KeyHoldRepeatDelay;
+                }
             }
         }
 
@@ -243,10 +269,18 @@ public class InputManager
         // of the remaining array are not in-common, and so their state has changed.
 
         while (oldIdx < prevKeyCount) // Anything that was pressed and is no longer
-            KeyReleased?.Invoke((Key)prevPressed[oldIdx++]);
+        {
+            Keys key = prevPressed[oldIdx++];
+            KeyReleased?.Invoke((Key)key);
+            keyHoldTimers.Remove(key);
+        }
 
         while (newIdx < currKeyCount) // Anything that wasn't pressed and now is
-            KeyPressed?.Invoke((Key)currPressed[newIdx++]);
+        {
+            Keys key = currPressed[newIdx++];
+            KeyPressed?.Invoke((Key)key);
+            keyHoldTimers[key] = currTime + KeyHoldFirstDelay;
+        }
     }
 
     #endregion

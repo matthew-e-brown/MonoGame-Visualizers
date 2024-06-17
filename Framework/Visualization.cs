@@ -1,6 +1,7 @@
 namespace TrentCOIS.Tools.Visualization;
 
 using System;
+using Microsoft.Xna.Framework;
 using TrentCOIS.Tools.Visualization.Input;
 
 /// <summary>
@@ -14,66 +15,48 @@ using TrentCOIS.Tools.Visualization.Input;
 public abstract class Visualization
 {
     /// <summary>
-    /// A reference to the <see cref="Renderer"/> that is currently overseeing the execution of this "game." Will be
-    /// <c>null</c> until the visualization is run.
+    /// A reference to the <see cref="GameRunner"/> that is currently overseeing the execution of this "game."
     /// </summary>
-    /// <seealso cref="Run()"/>
-    /// <seealso cref="Run(RenderOptions)"/>
-    internal Renderer? renderer;
+    /// <seealso cref="Start()"/>
+    internal GameRunner Runner { get; set; }
+
+    private bool isStarted;
+
+    /// <summary>
+    /// An abstraction for the user's keyboard and mouse input.
+    /// </summary>
+    protected internal InputManager UserInput { get; }
+
+    /// <summary>
+    /// The class responsible for actually drawing this visualization to the screen.
+    /// </summary>
+    protected internal abstract IRenderer Renderer { get; }
 
 
     /// <summary>
-    /// Creates a new base Game instance.
+    /// Creates a new base Game instance with the default <see cref="RunOptions"/>.
     /// </summary>
-    public Visualization()
+    public Visualization() : this(RunOptions.DefaultOptions)
     { }
 
-
     /// <summary>
-    /// Opens a window for this visualization and runs it.
+    /// Creates a new base Game instance with the provided <see cref="RunOptions"/>.
     /// </summary>
-    ///
-    /// <exception cref="InvalidOperationException">If this visualization has already been started.</exception>
-    public void Run() => Run(RenderOptions.DefaultOptions);
-
-    /// <summary>
-    /// Opens a window for this visualization and runs it.
-    /// </summary>
-    ///
-    /// <param name="renderOptions">Settings to initialize the renderer with.</param>
-    ///
-    /// <exception cref="InvalidOperationException">If this visualization has already been started.</exception>
-    public void Run(RenderOptions? renderOptions)
+    public Visualization(RunOptions? options)
     {
-        if (renderer is not null)
-            throw new InvalidOperationException("Attempted to start a visualization that has already started.");
-
-        renderer = new Renderer(this, renderOptions);
-        renderer.Run();
+        Runner = new GameRunner(this, options);
+        UserInput = new InputManager(Runner);
+        isStarted = false;
     }
 
 
     /// <summary>
-    /// This method is called once the graphics window has been initialized. Any rendering-related setup that couldn't
-    /// be done in the constructor should go here. This includes things like the loading of sprites and fonts and the
-    /// initialization of any secondary <see cref="Surface">Surfaces</see>.
+    /// Opens the window for this visualization and runs it.
     /// </summary>
-    ///
-    /// <remarks>
-    /// <para>
-    /// Some objects need to store some data on the graphics card, and so they cannot be initialized until the window
-    /// has been setup and a connection to the graphics device has been established.
-    /// </para>
-    ///
-    /// <para>
-    /// Note that this method <b>may be called more than once.</b> Specifically, it is called whenever the graphics
-    /// device is re-initialized. This can occur when the user adds/removes an external display, when their laptop wakes
-    /// up after going to sleep for a while, and so on.
-    /// </para>
-    /// </remarks>
-    public virtual void LoadContent()
+    public void Start()
     {
-        // Default implementation does nothing.
+        isStarted = true;
+        Runner.Run();
     }
 
 
@@ -86,7 +69,9 @@ public abstract class Visualization
     /// Implementing this method is optional, since some visualizations may only wish to update when keys are pressed or
     /// mice are clicked.
     /// </remarks>
-    protected internal virtual void Update()
+    ///
+    /// <param name="currentFrame">The number of the frame currently being processed.</param>
+    protected internal virtual void Update(uint currentFrame)
     {
         // Default implementation does nothing.
     }
@@ -96,25 +81,11 @@ public abstract class Visualization
     /// This method is called automatically <b>once per frame,</b> and is where any logic that has to do with
     /// interactivity should go.
     /// </summary>
-    /// <param name="gameTime">The amount of time that has passed since the visualization began.</param>
-    /// <param name="inputs">A game component for querying the state and changes of the user's input.</param>
-    protected internal virtual void HandleInput(TimeSpan gameTime, InputManager inputs)
+    /// <param name="gameTime">The amount of real time that has passed since last time this method ran.</param>
+    protected internal virtual void HandleInput(GameTime gameTime)
     {
         // Default implementation does nothing.
     }
-
-
-    /// <summary>
-    /// Called <b>once per frame</b> to draw the current state of this visualization to the screen.
-    /// </summary>
-    ///
-    /// <remarks>
-    /// This method should <b>only</b> handle drawing. Put code related to logic/updates in the <see cref="Update" />
-    /// method instead.
-    /// </remarks>
-    ///
-    /// <param name="screen">A drawable surface that represents the main window.</param>
-    protected internal abstract void Draw(Surface screen);
 
 
     /// <summary>
@@ -123,10 +94,11 @@ public abstract class Visualization
     /// <exception cref="InvalidOperationException">If this visualization hasn't been started yet.</exception>
     public void Pause()
     {
-        if (renderer is null)
+        if (!isStarted)
             throw new InvalidOperationException("Attempted to resume a visualization that hasn't started yet.");
-        renderer.IsPaused = true;
+        Runner.IsPaused = true;
     }
+
 
     /// <summary>
     /// Resumes the automatic updating of this visualization.
@@ -134,10 +106,43 @@ public abstract class Visualization
     /// <exception cref="InvalidOperationException">If this visualization hasn't been started yet.</exception>
     public void Resume()
     {
-        if (renderer is null)
+        if (!isStarted)
             throw new InvalidOperationException("Attempted to resume a visualization that hasn't started yet.");
-        renderer.IsPlaying = true;
+        Runner.IsPlaying = true;
     }
+
+
+    /// <summary>
+    /// Advances this visualization by a single frame.
+    /// </summary>
+    /// <exception cref="InvalidOperationException">If this visualization hasn't been started yet.</exception>
+    public void StepForward()
+    {
+        if (!isStarted)
+            throw new InvalidOperationException("Attempted to single-step a visualization that hasn't started yet.");
+
+        if (Runner.IsPaused)
+            Runner.SingleStepForward();
+    }
+
+
+    /// <summary>
+    /// Steps this visualization backwards by a single frame.
+    /// </summary>
+    /// <remarks>
+    /// This method is not actually all that special; all it does is decrement the <c>currentFrame</c> counter and
+    /// trigger a call to <see cref="Update"/>.
+    /// </remarks>
+    /// <exception cref="InvalidOperationException">If this visualization hasn't been started yet.</exception>
+    public void StepBackward()
+    {
+        if (!isStarted)
+            throw new InvalidOperationException("Attempted to single-step a visualization that hasn't started yet.");
+
+        if (Runner.IsPaused)
+            Runner.SingleStepBackward();
+    }
+
 
     /// <summary>
     /// Stops visualization playback and closes the window. Program execution will continue after
@@ -145,10 +150,9 @@ public abstract class Visualization
     /// <exception cref="InvalidOperationException">If this visualization hasn't been started yet.</exception>
     public void Exit()
     {
-        if (renderer is null)
+        if (!isStarted)
             throw new InvalidOperationException("Attempted to exit a visualization that hasn't been started yet.");
-        renderer.Exit();
-        renderer.Dispose();
-        renderer = null;
+        Runner.Exit();
+        Runner.Dispose();
     }
 }
