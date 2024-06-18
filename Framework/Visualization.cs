@@ -83,7 +83,6 @@ public abstract class Visualization
     {
         if (!HasStarted)
             throw new InvalidOperationException("Attempted to resume a visualization that hasn't started yet.");
-        // Runner.IsPaused = true;
         UserPause?.Invoke();
     }
 
@@ -97,7 +96,6 @@ public abstract class Visualization
         if (!HasStarted)
             throw new InvalidOperationException("Attempted to resume a visualization that hasn't started yet.");
         UserResume?.Invoke();
-        // Runner.IsPlaying = true;
     }
 
 
@@ -110,8 +108,6 @@ public abstract class Visualization
         if (!HasStarted)
             throw new InvalidOperationException("Attempted to single-step a visualization that hasn't started yet.");
         UserStepForward?.Invoke();
-        // if (!Runner.IsPaused) Runner.IsPaused = true;
-        // Runner.SingleStepForward();
     }
 
 
@@ -128,8 +124,6 @@ public abstract class Visualization
         if (!HasStarted)
             throw new InvalidOperationException("Attempted to single-step a visualization that hasn't started yet.");
         UserStepBackward?.Invoke();
-        // if (!Runner.IsPaused) Runner.IsPaused = true;
-        // Runner.SingleStepBackward();
     }
 
 

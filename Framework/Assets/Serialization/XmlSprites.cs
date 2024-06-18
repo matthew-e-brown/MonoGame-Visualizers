@@ -14,16 +14,29 @@ using System.Xml.Serialization;
 public record XmlSpriteInfo
 {
     /// <summary>The X-coordinate of where this sprite lives within its texture atlas.</summary>
-    [XmlAttribute] public ushort? X = null;
+    [XmlIgnore] public ushort? X = null;
 
     /// <summary>The Y-coordinate of where this sprite lives within its texture atlas.</summary>
-    [XmlAttribute] public ushort? Y = null;
+    [XmlIgnore] public ushort? Y = null;
 
     /// <summary>The width of this sprite within its source texture atlas.</summary>
-    [XmlAttribute] public ushort? W = null;
+    [XmlIgnore] public ushort? W = null;
 
     /// <summary>The height of this sprite within its source texture atlas.</summary>
-    [XmlAttribute] public ushort? H = null;
+    [XmlIgnore] public ushort? H = null;
+
+    // XmlSerializer can't deserialize a nullable value type, but we still wanna be able to determine the difference
+    // between null and zero. So we have this extra bit of indirection here.
+
+    /// <summary>Extra field for deserialization.</summary>
+    [XmlAttribute("X")] public ushort XAttr { get => X ?? 0; set => X = value; }
+    /// <summary>Extra field for deserialization.</summary>
+    [XmlAttribute("Y")] public ushort YAttr { get => Y ?? 0; set => Y = value; }
+    /// <summary>Extra field for deserialization.</summary>
+    [XmlAttribute("W")] public ushort WAttr { get => W ?? 0; set => W = value; }
+    /// <summary>Extra field for deserialization.</summary>
+    [XmlAttribute("H")] public ushort HAttr { get => H ?? 0; set => H = value; }
+
 
     /// <summary>The relative path to the texture file that this sprite or group of sprites come from.</summary>
     [XmlAttribute] public string? FilePath = null;

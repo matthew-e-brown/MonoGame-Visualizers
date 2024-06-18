@@ -1,7 +1,10 @@
 namespace TrentCOIS.Tools.Visualization;
 
 using System;
+using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using Microsoft.Xna.Framework;
+using TrentCOIS.Tools.Visualization.Input;
 
 
 /// <summary>
@@ -43,6 +46,14 @@ public abstract class Renderer<V> where V : Visualization
         set => FrameDelay = new TimeSpan(value * TimeSpan.TicksPerMillisecond);
     }
 
+    /// <summary>Whether or not the visualization is currently playing.</summary>
+    /// <seealso cref="IsPaused"/>
+    public bool IsPlaying { get; set; }
+
+    /// <summary>Whether or not the visualization is currently paused.</summary>
+    /// <seealso cref="IsPaused"/>
+    public bool IsPaused { get => !IsPlaying; set => IsPlaying = !value; }
+
 
     /// <summary>
     /// Sets a reference to the graphics device manager.
@@ -59,7 +70,8 @@ public abstract class Renderer<V> where V : Visualization
     /// </summary>
     public Renderer()
     {
-        Graphics = null!; // This is set by the
+        Graphics = null!; // This is set by the internal renderer before initialization.
+        IsPaused = true;
     }
 
 
@@ -77,11 +89,48 @@ public abstract class Renderer<V> where V : Visualization
     }
 
 
+    #region Run method
+
+    /// <summary>Use this renderer to run the given visualization.</summary>
+    /// <param name="visualization">The visualization to run.</param>
+    public void Run(V visualization)
+    {
+        using var runner = new GameRunner<V>(visualization, this);
+
+        visualization.UserPause += HandleUserPause;
+        visualization.UserResume += HandleUserResume;
+        visualization.UserStepForward += HandleUserStepForward;
+        visualization.UserStepBackward += HandleUserStepBackward;
+        visualization.UserExit += HandleUserExit;
+
+        currentRunner = runner; // Keep reference so we can access methods.
+        runner.Run();           // Run the game
+        currentRunner = null;   // Ensure dispose runs properly (I don't trust it if we keep a reference around)
+    }
+
+
+    /// <summary>Use this renderer to run the given visualization.</summary>
+    /// <param name="visualization">The visualization to run.</param>
+    /// <param name="startPaused">
+    /// Defaults to <c>true</c>. Set to <c>false</c> to have the visualization start right away.
+    /// </param>
+    public void Run(V visualization, bool startPaused)
+    {
+        IsPaused = startPaused;
+        Run(visualization);
+    }
+
+    #endregion
+
+
+    #region Virtual methods
+
     /// <summary>
     /// Sets up everything this renderer needs to render the user's visualization.
     /// </summary>
     /// <param name="userViz">A reference to the user's visualization.</param>
-    public virtual void Initialize(V userViz)
+    /// <param name="input">The input manager for the visualization, to establish event listeners.</param>
+    public virtual void Initialize(V userViz, InputManager input)
     {
         // Default implementation does nothing.
     }
@@ -113,9 +162,21 @@ public abstract class Renderer<V> where V : Visualization
     /// <summary>
     /// Called once per frame to update any internal state that this renderer may have for itself.
     /// </summary>
-    /// <param name="gameTime">The current game time.</param>
     /// <param name="userViz">A reference to the user's visualization.</param>
-    public virtual void Update(GameTime gameTime, V userViz)
+    /// <param name="gameTime">The current game time.</param>
+    /// <param name="currentFrame">The current frame number/timestamp of the user's visualization to render.</param>
+    public virtual void Update(V userViz, GameTime gameTime, uint currentFrame)
+    {
+        // Default implementation does nothing.
+    }
+
+    /// <summary>
+    /// Called once per frame to do any user-input handling that this renderer might want to do.
+    /// </summary>
+    /// <param name="userViz">A reference to the user's visualization.</param>
+    /// <param name="gameTime">The current game time.</param>
+    /// <param name="input">The <see cref="InputManager"/> instance from the user's visualization.</param>
+    public virtual void HandleInput(V userViz, GameTime gameTime, InputManager input)
     {
         // Default implementation does nothing.
     }
@@ -123,27 +184,110 @@ public abstract class Renderer<V> where V : Visualization
     /// <summary>
     /// Called once per frame to draw the current state of the attached visualization to the screen.
     /// </summary>
-    /// <param name="gameTime">The current game time.</param>
     /// <param name="userViz">A reference to the user's visualization.</param>
-    public abstract void Draw(GameTime gameTime, V userViz);
+    /// <param name="gameTime">The current game time.</param>
+    public abstract void Draw(V userViz, GameTime gameTime);
 
+    #endregion
 
-    /// <summary>Use this renderer to run the given visualization.</summary>
-    /// <param name="visualization">The visualization to run.</param>
-    public void Run(V visualization) => Run(visualization, true);
+    #region User event handling
 
-    /// <summary>Use this renderer to run the given visualization.</summary>
-    /// <param name="visualization">The visualization to run.</param>
-    /// <param name="startPaused">Whether or not this visualization should start right away or not.</param>
-    public void Run(V visualization, bool startPaused)
+    /// <summary>
+    /// The method that is run whenever the <see cref="Visualization.UserPause"/> event is fired. Its default behavior
+    /// is simply to call the <see cref="Pause">underlying control function</see>, but this can be overridden.
+    /// </summary>
+    protected virtual void HandleUserPause() => Pause();
+
+    /// <summary>
+    /// The method that is run whenever the <see cref="Visualization.UserResume"/> event is fired. Its default behavior
+    /// is simply to call the <see cref="Resume">underlying control function</see>, but this can be overridden.
+    /// </summary>
+    protected virtual void HandleUserResume() => Resume();
+
+    /// <summary>
+    /// The method that is run whenever the <see cref="Visualization.UserStepForward"/> event is fired. Its default
+    /// behavior is simply to call the <see cref="StepForward">underlying control function</see> (if the renderer is
+    /// already paused), but this can be overridden.
+    /// </summary>
+    protected virtual void HandleUserStepForward()
     {
-        using var runner = new GameRunner<V>(visualization, this)
-        {
-            IsPaused = startPaused
-        };
-
-        currentRunner = runner; // Keep reference so we can access methods.
-        runner.Run();           // Run the game
-        currentRunner = null;   // Ensure dispose runs properly (I don't trust it if we keep a reference around)
+        if (IsPaused) StepForward();
     }
+
+    /// <summary>
+    /// The method that is run whenever the <see cref="Visualization.UserStepBackward"/> event is fired. Its default
+    /// behavior is simply to call the <see cref="StepBackward">underlying control function</see> (if the renderer is
+    /// already paused), but this can be overridden.
+    /// </summary>
+    protected virtual void HandleUserStepBackward()
+    {
+        if (IsPaused) StepBackward();
+    }
+
+    /// <summary>
+    /// The method that is run whenever the <see cref="Visualization.UserExit"/> event is fired. Its default behavior is
+    /// simply to call the <see cref="Exit">underlying control function</see>, but this can be overridden.
+    /// </summary>
+    protected virtual void HandleUserExit() => Exit();
+
+
+    /// <summary>Pauses playback.</summary>
+    protected void Pause() => IsPaused = true;
+
+    /// <summary>Resumes playback.</summary>
+    protected void Resume() => IsPaused = false;
+
+    /// <summary>
+    /// Steps playback forwards by one frame.
+    /// </summary>
+    /// <exception cref="InvalidOperationException">If the renderer is not already paused.</exception>
+    protected void StepForward()
+    {
+        EnsureStarted();
+
+        if (!IsPaused)
+            throw new InvalidOperationException("Renderer must be paused before single-stepping can occur.");
+
+        currentRunner.CurrentFrame++;
+        currentRunner.DoUserUpdate();
+    }
+
+    /// <summary>
+    /// Steps playback backwards by one frame.
+    /// </summary>
+    /// <exception cref="InvalidOperationException">If the renderer is not already paused.</exception>
+    /// <remarks>
+    /// This method doesn't do anything particularly special. All it does is decrement the current frame counter and
+    /// call the user's update method.
+    /// </remarks>
+    protected void StepBackward()
+    {
+        EnsureStarted();
+
+        if (!IsPaused)
+            throw new InvalidOperationException("Renderer must be paused before single-stepping can occur.");
+
+        currentRunner.CurrentFrame--;
+        currentRunner.DoUserUpdate();
+    }
+
+    /// <summary>
+    /// Closes the renderer.
+    /// </summary>
+    protected void Exit()
+    {
+        EnsureStarted();
+        currentRunner.Exit();
+    }
+
+
+    [StackTraceHidden]
+    [MemberNotNull(nameof(currentRunner))]
+    private void EnsureStarted()
+    {
+        if (currentRunner is null)
+            throw new InvalidOperationException("Cannot control playback before playback has started.");
+    }
+
+    #endregion
 }

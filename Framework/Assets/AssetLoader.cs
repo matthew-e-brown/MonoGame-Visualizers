@@ -210,7 +210,8 @@ public class AssetLoader
             allSprites.EnsureCapacity(allSprites.Count + spriteCount);
 
             var xmlInfo = new XmlSpriteInfo();
-            ParseXmlSpriteGroup(xmlRoot, "", xmlInfo, ref allSprites);
+            var dirPath = Path.GetDirectoryName(xmlPath)!; // non-null since we know it's a valid file
+            ParseXmlSpriteGroup(xmlRoot, dirPath, "", xmlInfo, ref allSprites);
         }
 
         return allSprites;
@@ -223,6 +224,10 @@ public class AssetLoader
     /// Recursively parses a tree of sprite information.
     /// </summary>
     /// <param name="group">The group to parse.</param>
+    /// <param name="xmlBasePath">
+    /// The path to the directory containing the original XML file (so it can be joined with paths from within the
+    /// file).
+    /// </param>
     /// <param name="currentGroupName">
     /// The name of the current parent group, with its trailing slash (unless this is the root node, then it should be
     /// empty).
@@ -234,6 +239,7 @@ public class AssetLoader
     /// </exception>
     private void ParseXmlSpriteGroup(
         XmlSpriteGroup group,
+        string xmlBasePath,
         string currentGroupName,
         XmlSpriteInfo spriteInfo,
         ref Dictionary<string, Sprite> loadedSprites
@@ -253,7 +259,7 @@ public class AssetLoader
             var finalInfo = spriteInfo.With(xmlSprite);
 
             var spriteTex = (finalInfo.FilePath is string texPath)
-                ? GetTexture(texPath)
+                ? GetTexture(Path.GetFullPath(texPath, xmlBasePath))
                 : throw new AssetLoadException("Encountered a <Sprite> with no ancestor FilePath attribute.");
 
             if (xmlSprite.Name is null)
@@ -274,7 +280,7 @@ public class AssetLoader
         // Now recurse with the child groups.
         foreach (var xmlGroup in group.Children)
         {
-            ParseXmlSpriteGroup(xmlGroup, currentGroupName, spriteInfo, ref loadedSprites);
+            ParseXmlSpriteGroup(xmlGroup, xmlBasePath, currentGroupName, spriteInfo, ref loadedSprites);
         }
     }
 
@@ -305,14 +311,14 @@ public class AssetLoader
                 // https://learn.microsoft.com/en-us/dotnet/api/system.io.file.open?view=net-6.0#system-io-file-open(system-string-system-io-filemode)
                 case FileNotFoundException:
                 case DirectoryNotFoundException:
-                    throw new AssetLoadException($"Could not find file `{fullPath}`.", ex);
+                    throw new AssetLoadException($"Could not find file.", ex);
                 case PathTooLongException:  // "The specified path, file name, or both exceed the system-defined maximum length."
                 case NotSupportedException: // "path is in an invalid format."
-                    throw new AssetLoadException($"The path `{fullPath}` is invalid.", ex);
+                    throw new AssetLoadException($"The specified path is invalid.", ex);
                 case UnauthorizedAccessException:
-                    throw new AssetLoadException($"Access to `{fullPath} is unauthorized.`", ex);
+                    throw new AssetLoadException($"File access is not authorized.`", ex);
                 case IOException:
-                    throw new AssetLoadException($"Something went wrong opening the file `{fullPath}`", ex);
+                    throw new AssetLoadException($"Something went wrong opening the file.", ex);
                 // Anything else is on us.
                 default: throw;
             }
@@ -339,15 +345,15 @@ public class AssetLoader
                 // https://learn.microsoft.com/en-us/dotnet/api/system.io.file.readallbytes?view=net-6.0
                 case FileNotFoundException:
                 case DirectoryNotFoundException:
-                    throw new AssetLoadException($"Could not find file `{fullPath}`.", ex);
+                    throw new AssetLoadException($"Could not find file.", ex);
                 case PathTooLongException:  // "The specified path, file name, or both exceed the system-defined maximum length."
                 case NotSupportedException: // "path is in an invalid format."
-                    throw new AssetLoadException($"The path `{fullPath}` is invalid.", ex);
+                    throw new AssetLoadException($"The specified path is invalid.", ex);
                 case SecurityException:
                 case UnauthorizedAccessException:
-                    throw new AssetLoadException($"Access to `{fullPath} is unauthorized.`", ex);
+                    throw new AssetLoadException($"File access is not authorized.`", ex);
                 case IOException:
-                    throw new AssetLoadException($"Something went wrong opening the file `{fullPath}`", ex);
+                    throw new AssetLoadException($"Something went wrong opening the file.", ex);
                 // Anything else is on us.
                 default: throw;
             }

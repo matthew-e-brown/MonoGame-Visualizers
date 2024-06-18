@@ -12,7 +12,7 @@ using Microsoft.Xna.Framework;
 /// The extra level of encapsulation between <see cref="Visualization"/> and <see cref="GameRunner{V}"/> is so that the
 /// students never have direct access to the members <see cref="Game"/> that MonoGame makes public by default.
 /// </remarks>
-public class GameRunner<V> : Game where V : Visualization
+internal class GameRunner<V> : Game where V : Visualization
 {
     /// <summary>
     /// A reference to the user's visualization.
@@ -31,20 +31,6 @@ public class GameRunner<V> : Game where V : Visualization
 
 
     /// <summary>
-    /// Gets or sets a value that determines the playback-state of the visualization.
-    /// </summary>
-    /// <seealso cref="IsPaused"/>
-    public bool IsPlaying { get; set; }
-
-    /// <summary>
-    /// Gets or sets a value that determines the playback-state of the visualization.
-    /// </summary>
-    /// <seealso cref="IsPaused"/>
-    public bool IsPaused { get => !IsPlaying; set => IsPlaying = !value; }
-
-
-
-    /// <summary>
     /// The current game frame, or the number of "ticks" that have elapsed since the start of the simulation.
     /// </summary>
     ///
@@ -53,7 +39,7 @@ public class GameRunner<V> : Game where V : Visualization
     /// time the user's <see cref="Visualization.Update"/> method is called. That way, tick number "zero" is the one
     /// seen before any stepping occurs.
     /// </remarks>
-    public uint CurrentFrame { get; protected set; } = 0;
+    public uint CurrentFrame { get; internal set; } = 0;
 
     /// <summary>
     /// The most recent time that <see cref="Visualization.Update"/> was called.
@@ -78,12 +64,6 @@ public class GameRunner<V> : Game where V : Visualization
 
         Graphics = new GraphicsDeviceManager(this);
         VizRenderer.Graphics = Graphics;
-
-        UserViz.UserPause += HandleUserPause;
-        UserViz.UserPause += HandleUserResume;
-        UserViz.UserStepForward += HandleUserStepForward;
-        UserViz.UserStepBackward += HandleUserStepBackward;
-        UserViz.UserExit += HandleUserExit;
     }
 
 
@@ -100,7 +80,7 @@ public class GameRunner<V> : Game where V : Visualization
         // Unlike Load/Update/Draw, Initialization of our components comes *after* we setup our stuff (since it's
         // important).
         base.Initialize();
-        VizRenderer.Initialize(UserViz);
+        VizRenderer.Initialize(UserViz, UserViz.UserInput);
 
         // Start with a dark gray screen.
         Graphics.GraphicsDevice.Clear(new Color(14, 14, 14));
@@ -142,58 +122,29 @@ public class GameRunner<V> : Game where V : Visualization
 
         // Call the user's Input method after we update our components (i.e. the InputManager, since they need that).
         base.Update(gameTime);
+        VizRenderer.HandleInput(UserViz, gameTime, UserViz.UserInput);
         UserViz.HandleInput(gameTime.TotalGameTime);
 
         // Call user Update method
-        if (IsPlaying && LastTickedTime + VizRenderer.FrameDelay <= currentTime)
+        if (VizRenderer.IsPlaying && LastTickedTime + VizRenderer.FrameDelay <= currentTime)
         {
             CurrentFrame++;
             DoUserUpdate();
         }
 
         // Once the user's visualization is updated, update the renderer's state so it can draw it.
-        VizRenderer.Update(gameTime, UserViz);
+        VizRenderer.Update(UserViz, gameTime, CurrentFrame);
         currentTime = null;
     }
 
 
-    private void DoUserUpdate()
+    internal void DoUserUpdate()
     {
         if (currentTime is not TimeSpan time)
             throw new InvalidOperationException("Called DoUserUpdate from outside of frame update.");
         UserViz.Update(CurrentFrame);
         LastTickedTime = time;
     }
-
-
-    /// <summary>This method is run when the <see cref="Visualization.UserPause"/> event is fired.</summary>
-    protected virtual void HandleUserPause() => IsPaused = true;
-
-    /// <summary>This method is run when the <see cref="Visualization.UserResume"/> event is fired.</summary>
-    protected virtual void HandleUserResume() => IsPlaying = true;
-
-    /// <summary>This method is run when the <see cref="Visualization.UserStepForward"/> event is fired.</summary>
-    protected virtual void HandleUserStepForward()
-    {
-        if (IsPaused)
-        {
-            CurrentFrame++;
-            DoUserUpdate();
-        }
-    }
-
-    /// <summary>This method is run when the <see cref="Visualization.UserStepBackward"/> event is fired.</summary>
-    protected virtual void HandleUserStepBackward()
-    {
-        if (IsPaused)
-        {
-            CurrentFrame--;
-            DoUserUpdate();
-        }
-    }
-
-    /// <summary>This method is run when the <see cref="Visualization.UserExit"/> event is fired.</summary>
-    protected virtual void HandleUserExit() => Exit();
 
     #endregion
 
@@ -208,7 +159,7 @@ public class GameRunner<V> : Game where V : Visualization
     {
         // Don't clear the screen: we let them handle that.
         base.Draw(gameTime);                    // Components (if any) get updated first.
-        VizRenderer.Draw(gameTime, UserViz);    // Then the parent renderer does its stuff.
+        VizRenderer.Draw(UserViz, gameTime);    // Then the parent renderer does its stuff.
     }
 
     #endregion
