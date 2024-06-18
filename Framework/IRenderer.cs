@@ -2,6 +2,7 @@ namespace TrentCOIS.Tools.Visualization;
 
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using TrentCOIS.Tools.Visualization.Assets;
 
 /// <summary>
 /// A level of abstraction for performing the actual drawing for a <see cref="Visualization"/>. Implementations of this
@@ -37,7 +38,9 @@ public interface IRenderer
     /// up after going to sleep for a while, and so on.
     /// </para>
     /// </remarks>
-    public void LoadContent()
+    ///
+    /// <param name="assetLoader">An asset loader for loading sprites, fonts, etc.</param>
+    public void LoadContent(AssetLoader assetLoader)
     {
         // Default implementation does nothing.
     }

@@ -2,6 +2,7 @@ namespace TrentCOIS.Tools.Visualization;
 
 using System;
 using Microsoft.Xna.Framework;
+using TrentCOIS.Tools.Visualization.Assets;
 
 
 /// <summary>
@@ -164,7 +165,9 @@ public class GameRunner : Game
     protected override void LoadContent()
     {
         base.LoadContent();
-        Parent.Renderer.LoadContent();
+
+        var loader = new AssetLoader(GraphicsDevice);
+        Parent.Renderer.LoadContent(loader);
     }
 
 
