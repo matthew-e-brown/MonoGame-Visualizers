@@ -2,35 +2,6 @@ namespace TrentCOIS.Tools.Visualization;
 
 using System;
 using Microsoft.Xna.Framework;
-using TrentCOIS.Tools.Visualization.Assets;
-
-
-/// <summary>
-/// Configuration for the execution of a <see cref="Visualization"/>.
-/// </summary>
-public record RunOptions
-{
-    /// <summary>How wide of a window to create.</summary>
-    /// <remarks>The default value is 1280 pixels.</remarks>
-    public int WindowWidth = 1280;
-
-    /// <summary>How tall of a window to create.</summary>
-    /// <remarks>The default value is 720 pixels.</remarks>
-    public int WindowHeight = 720;
-
-    /// <summary>Controls whether or not the visualization starts right away.</summary>
-    /// <remarks>The default is to start paused.</remarks>
-    public bool StartPaused = true;
-
-    /// <summary>The amount of delay between each step of a <see cref="Visualization"/>.</summary>
-    /// <remarks>The default value is 100 ms.</remarks>
-    public long FrameDelayMS = 100;
-
-    /// <summary>
-    /// The default rendering options.
-    /// </summary>
-    public readonly static RunOptions DefaultOptions = new(); // uses default member values.
-}
 
 
 /// <summary>
@@ -38,31 +9,26 @@ public record RunOptions
 /// </summary>
 ///
 /// <remarks>
-/// The extra level of encapsulation between <see cref="Visualization"/> and <see cref="GameRunner"/> is so that the
+/// The extra level of encapsulation between <see cref="Visualization"/> and <see cref="GameRunner{V}"/> is so that the
 /// students never have direct access to the members <see cref="Game"/> that MonoGame makes public by default.
 /// </remarks>
-public class GameRunner : Game
+public class GameRunner<V> : Game where V : Visualization
 {
     /// <summary>
     /// A reference to the user's visualization.
     /// </summary>
-    protected Visualization Parent { get; private init; }
+    public V UserViz { get; private init; }
+
+    /// <summary>
+    /// The renderer used to render <see cref="UserViz"/>.
+    /// </summary>
+    public Renderer<V> VizRenderer { get; set; }
 
     /// <summary>
     /// The <see cref="GraphicsDeviceManager" /> for this <see cref="Game">MonoGame <c>Game</c></see> instance.
     /// </summary>
     protected GraphicsDeviceManager Graphics { get; private set; }
 
-
-    /// <summary>Gets or initializes the window's width.</summary>
-    /// <value>The width of the window, in pixels.</value>
-    /// <seealso cref="WindowHeight"/>
-    public int WindowWidth { get; private set; }
-
-    /// <summary>Gets or initializes the window's height.</summary>
-    /// <value>The height of the window, in pixels.</value>
-    /// <seealso cref="WindowWidth"/>
-    public int WindowHeight { get; private set; }
 
     /// <summary>
     /// Gets or sets a value that determines the playback-state of the visualization.
@@ -76,19 +42,7 @@ public class GameRunner : Game
     /// <seealso cref="IsPaused"/>
     public bool IsPaused { get => !IsPlaying; set => IsPlaying = !value; }
 
-    /// <summary>
-    /// How long to wait between updating the user's visualization.
-    /// </summary>
-    public TimeSpan FrameDelay { get; set; }
 
-    /// <summary>
-    /// <see cref="FrameDelay"/>, but in milliseconds.
-    /// </summary>
-    public long FrameDelayMS
-    {
-        get => FrameDelay.Milliseconds;
-        set => FrameDelay = new TimeSpan(value * TimeSpan.TicksPerMillisecond);
-    }
 
     /// <summary>
     /// The current game frame, or the number of "ticks" that have elapsed since the start of the simulation.
@@ -114,28 +68,22 @@ public class GameRunner : Game
     /// Creates a new renderer that will run the provided visualization.
     /// </summary>
     /// <param name="visualization">The visualization to render.</param>
-    public GameRunner(Visualization visualization)
+    /// <param name="renderer">
+    /// The renderer implementation to call on to draw the user's visualization to the screen.
+    /// </param>
+    public GameRunner(V visualization, Renderer<V> renderer)
     {
-        Parent = visualization;
-        Parent.Runner = this;
+        UserViz = visualization;
+        VizRenderer = renderer;
 
         Graphics = new GraphicsDeviceManager(this);
-        Components.Add(visualization.UserInput.ComponentInstance);
-    }
+        VizRenderer.Graphics = Graphics;
 
-
-    /// <summary>
-    /// Creates and configures a new renderer that will run the provided visualization.
-    /// </summary>
-    /// <param name="visualization">The visualization to render.</param>
-    /// <param name="options">Configuration for how this renderer should behave.</param>
-    public GameRunner(Visualization visualization, RunOptions? options) : this(visualization)
-    {
-        options ??= RunOptions.DefaultOptions;
-        WindowWidth = options.WindowWidth;
-        WindowHeight = options.WindowHeight;
-        IsPaused = options.StartPaused;
-        FrameDelayMS = options.FrameDelayMS;
+        UserViz.UserPause += HandleUserPause;
+        UserViz.UserPause += HandleUserResume;
+        UserViz.UserStepForward += HandleUserStepForward;
+        UserViz.UserStepBackward += HandleUserStepBackward;
+        UserViz.UserExit += HandleUserExit;
     }
 
 
@@ -147,15 +95,28 @@ public class GameRunner : Game
         // Configure the main window
         Window.AllowUserResizing = false;
         Graphics.IsFullScreen = false;
-        Graphics.PreferredBackBufferWidth = WindowWidth;
-        Graphics.PreferredBackBufferHeight = WindowHeight;
-        Graphics.ApplyChanges();
-
-        Parent.Renderer.GraphicsDevice = GraphicsDevice;
+        ResizeWindow(VizRenderer.WindowWidth, VizRenderer.WindowHeight);
 
         // Unlike Load/Update/Draw, Initialization of our components comes *after* we setup our stuff (since it's
         // important).
         base.Initialize();
+        VizRenderer.Initialize(UserViz);
+
+        // Start with a dark gray screen.
+        Graphics.GraphicsDevice.Clear(new Color(14, 14, 14));
+    }
+
+
+    /// <summary>
+    /// Resizes the main window
+    /// </summary>
+    /// <param name="width"></param>
+    /// <param name="height"></param>
+    protected internal void ResizeWindow(int width, int height)
+    {
+        Graphics.PreferredBackBufferWidth = width;
+        Graphics.PreferredBackBufferHeight = height;
+        Graphics.ApplyChanges();
     }
 
 
@@ -165,11 +126,11 @@ public class GameRunner : Game
     protected override void LoadContent()
     {
         base.LoadContent();
-
-        var loader = new AssetLoader(GraphicsDevice);
-        Parent.Renderer.LoadContent(loader);
+        VizRenderer.LoadContent(UserViz);
     }
 
+
+    #region Update
 
     /// <summary>
     /// Runs on every frame to handle game updates.
@@ -181,17 +142,17 @@ public class GameRunner : Game
 
         // Call the user's Input method after we update our components (i.e. the InputManager, since they need that).
         base.Update(gameTime);
-        Parent.HandleInput(gameTime);
+        UserViz.HandleInput(gameTime.TotalGameTime);
 
         // Call user Update method
-        if (IsPlaying && LastTickedTime + FrameDelay <= currentTime)
+        if (IsPlaying && LastTickedTime + VizRenderer.FrameDelay <= currentTime)
         {
             CurrentFrame++;
             DoUserUpdate();
         }
 
-        // Once the user's visualization is updated, update the renderer's state for drawing.
-        Parent.Renderer.Update(gameTime);
+        // Once the user's visualization is updated, update the renderer's state so it can draw it.
+        VizRenderer.Update(gameTime, UserViz);
         currentTime = null;
     }
 
@@ -200,23 +161,44 @@ public class GameRunner : Game
     {
         if (currentTime is not TimeSpan time)
             throw new InvalidOperationException("Called DoUserUpdate from outside of frame update.");
-        Parent.Update(CurrentFrame);
+        UserViz.Update(CurrentFrame);
         LastTickedTime = time;
     }
 
-    internal void SingleStepForward()
+
+    /// <summary>This method is run when the <see cref="Visualization.UserPause"/> event is fired.</summary>
+    protected virtual void HandleUserPause() => IsPaused = true;
+
+    /// <summary>This method is run when the <see cref="Visualization.UserResume"/> event is fired.</summary>
+    protected virtual void HandleUserResume() => IsPlaying = true;
+
+    /// <summary>This method is run when the <see cref="Visualization.UserStepForward"/> event is fired.</summary>
+    protected virtual void HandleUserStepForward()
     {
-        CurrentFrame++;
-        DoUserUpdate();
+        if (IsPaused)
+        {
+            CurrentFrame++;
+            DoUserUpdate();
+        }
     }
 
-    internal void SingleStepBackward()
+    /// <summary>This method is run when the <see cref="Visualization.UserStepBackward"/> event is fired.</summary>
+    protected virtual void HandleUserStepBackward()
     {
-        CurrentFrame--;
-        DoUserUpdate();
+        if (IsPaused)
+        {
+            CurrentFrame--;
+            DoUserUpdate();
+        }
     }
 
+    /// <summary>This method is run when the <see cref="Visualization.UserExit"/> event is fired.</summary>
+    protected virtual void HandleUserExit() => Exit();
 
+    #endregion
+
+
+    #region Draw
 
     /// <summary>
     /// Runs on every frame to handle rendering.
@@ -224,11 +206,10 @@ public class GameRunner : Game
     /// <param name="gameTime">The current game time.</param>
     protected override void Draw(GameTime gameTime)
     {
-        Graphics.GraphicsDevice.Clear(Color.Black);
-
-        // The user's `Draw` method is called every single frame, even if their `Update` method didn't get called. That
-        // allows their `HandleInput` method to update animation state.
-        base.Draw(gameTime);            // Components (if any) get updated first.
-        Parent.Renderer.Draw(gameTime); // Then the parent renderer does its stuff.
+        // Don't clear the screen: we let them handle that.
+        base.Draw(gameTime);                    // Components (if any) get updated first.
+        VizRenderer.Draw(gameTime, UserViz);    // Then the parent renderer does its stuff.
     }
+
+    #endregion
 }

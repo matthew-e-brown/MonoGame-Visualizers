@@ -1,10 +1,6 @@
 namespace TrentCOIS.Tools.Visualization.Assets;
 
 using System;
-using System.IO;
-using System.Diagnostics;
-using System.Diagnostics.CodeAnalysis;
-using System.Runtime.ExceptionServices;
 
 /// <summary>
 /// The exception that is thrown when an asset fails to load.

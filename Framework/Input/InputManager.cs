@@ -2,6 +2,7 @@ namespace TrentCOIS.Tools.Visualization.Input;
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
 
@@ -36,8 +37,8 @@ public class InputManager
     /// </summary>
     /// <remarks>
     /// <para>
-    /// Just like with the separation between <see cref="Visualization"/> and <see cref="GameRunner"/>, composition is
-    /// used to hide the extra public/protected members that are inherited from the base class. That way, students'
+    /// Just like with the separation between <see cref="Visualization"/> and <see cref="GameRunner{V}"/>, composition
+    /// is used to hide the extra public/protected members that are inherited from the base class. That way, students'
     /// Intellisense is not filled with extra properties/methods that they shouldn't be calling.
     /// </para>
     /// <para>
@@ -47,7 +48,14 @@ public class InputManager
     /// </para>
     /// </remarks>
     /// <seealso cref="InnerGameComponent"/>
-    protected internal GameComponent ComponentInstance { get; }
+    protected internal GameComponent? ComponentInstance { get; private set; }
+
+    /// <summary>
+    /// Checks whether or not the inner <see cref="ComponentInstance"/> is attached to a <see cref="Game"/> instance
+    /// yet.
+    /// </summary>
+    [MemberNotNullWhen(true, nameof(ComponentInstance))]
+    protected internal bool IsAttachedToGame => ComponentInstance is not null;
 
 
     /// <summary>The current state of the user's mouse.</summary>
@@ -139,12 +147,10 @@ public class InputManager
 
 
     /// <summary>
-    /// Creates a new <see cref="InputManager"/> for the given MonoGame <see cref="Game"/> instance.
+    /// Creates a new <see cref="InputManager"/>.
     /// </summary>
-    /// <param name="game">The game to handle inputs for.</param>
-    public InputManager(Game game)
+    public InputManager()
     {
-        ComponentInstance = new InnerGameComponent(this, game);
         PrevKeys = CurrKeys = new KeyboardState();
         PrevMouse = CurrMouse = new MouseState();
 
@@ -156,6 +162,27 @@ public class InputManager
         prevKeyCount = 0;
 
         keyHoldTimers = new Dictionary<Keys, TimeSpan>(nKeys);
+    }
+
+    /// <summary>
+    /// Creates a new <see cref="InputManager"/> and attaches it to the given MonoGame <see cref="Game"/> instance.
+    /// </summary>
+    /// <param name="game">The game to attach to.</param>
+    public InputManager(Game game) : this()
+    {
+        AttachToGame(game);
+    }
+
+
+    /// <summary>
+    /// Attaches this <see cref="InputManager"/> to a MonoGame <see cref="Game"/> by creating an internal component
+    /// instance.
+    /// </summary>
+    /// <param name="game">The game to attach to.</param>
+    [MemberNotNull(nameof(ComponentInstance))]
+    protected internal void AttachToGame(Game game)
+    {
+        ComponentInstance = new InnerGameComponent(this, game);
     }
 
 
@@ -476,6 +503,7 @@ public class InputManager
         /// <param name="game">The game that <paramref name="parent"/> is attached to.</param>
         public InnerGameComponent(InputManager parent, Game game) : base(game)
         {
+            game.Components.Add(this);
             Parent = parent;
         }
 

@@ -1,7 +1,6 @@
 namespace TrentCOIS.Tools.Visualization;
 
 using System;
-using Microsoft.Xna.Framework;
 using TrentCOIS.Tools.Visualization.Input;
 
 /// <summary>
@@ -15,48 +14,22 @@ using TrentCOIS.Tools.Visualization.Input;
 public abstract class Visualization
 {
     /// <summary>
-    /// A reference to the <see cref="GameRunner"/> that is currently overseeing the execution of this "game."
+    /// Whether or not this visualization has started yet.
     /// </summary>
-    /// <seealso cref="Start()"/>
-    internal GameRunner Runner { get; set; }
-
-    private bool isStarted;
+    public bool HasStarted { get; internal set; }
 
     /// <summary>
     /// An abstraction for the user's keyboard and mouse input.
     /// </summary>
     protected internal InputManager UserInput { get; }
 
-    /// <summary>
-    /// The class responsible for actually drawing this visualization to the screen.
-    /// </summary>
-    protected internal abstract IRenderer Renderer { get; }
-
 
     /// <summary>
-    /// Creates a new base Game instance with the default <see cref="RunOptions"/>.
+    /// Creates a new base Game instance.
     /// </summary>
-    public Visualization() : this(RunOptions.DefaultOptions)
-    { }
-
-    /// <summary>
-    /// Creates a new base Game instance with the provided <see cref="RunOptions"/>.
-    /// </summary>
-    public Visualization(RunOptions? options)
+    public Visualization()
     {
-        Runner = new GameRunner(this, options);
-        UserInput = new InputManager(Runner);
-        isStarted = false;
-    }
-
-
-    /// <summary>
-    /// Opens the window for this visualization and runs it.
-    /// </summary>
-    public void Start()
-    {
-        isStarted = true;
-        Runner.Run();
+        UserInput = new InputManager();
     }
 
 
@@ -81,11 +54,25 @@ public abstract class Visualization
     /// This method is called automatically <b>once per frame,</b> and is where any logic that has to do with
     /// interactivity should go.
     /// </summary>
-    /// <param name="gameTime">The amount of real time that has passed since last time this method ran.</param>
-    protected internal virtual void HandleInput(GameTime gameTime)
+    /// <param name="time">The total amount of time that has passed since this visualization started running.</param>
+    protected internal virtual void HandleInput(TimeSpan time)
     {
         // Default implementation does nothing.
     }
+
+
+    #region User events
+
+    /// <summary>
+    /// Handles a single playback request from the user (i.e. Play, Pause, Step, and so on).
+    /// </summary>
+    internal delegate void PlaybackRequestHandler();
+
+    internal event PlaybackRequestHandler? UserPause;
+    internal event PlaybackRequestHandler? UserResume;
+    internal event PlaybackRequestHandler? UserStepForward;
+    internal event PlaybackRequestHandler? UserStepBackward;
+    internal event PlaybackRequestHandler? UserExit;
 
 
     /// <summary>
@@ -94,9 +81,10 @@ public abstract class Visualization
     /// <exception cref="InvalidOperationException">If this visualization hasn't been started yet.</exception>
     public void Pause()
     {
-        if (!isStarted)
+        if (!HasStarted)
             throw new InvalidOperationException("Attempted to resume a visualization that hasn't started yet.");
-        Runner.IsPaused = true;
+        // Runner.IsPaused = true;
+        UserPause?.Invoke();
     }
 
 
@@ -106,9 +94,10 @@ public abstract class Visualization
     /// <exception cref="InvalidOperationException">If this visualization hasn't been started yet.</exception>
     public void Resume()
     {
-        if (!isStarted)
+        if (!HasStarted)
             throw new InvalidOperationException("Attempted to resume a visualization that hasn't started yet.");
-        Runner.IsPlaying = true;
+        UserResume?.Invoke();
+        // Runner.IsPlaying = true;
     }
 
 
@@ -116,13 +105,13 @@ public abstract class Visualization
     /// Advances this visualization by a single frame.
     /// </summary>
     /// <exception cref="InvalidOperationException">If this visualization hasn't been started yet.</exception>
-    public void StepForward()
+    public void SingleStepForward()
     {
-        if (!isStarted)
+        if (!HasStarted)
             throw new InvalidOperationException("Attempted to single-step a visualization that hasn't started yet.");
-
-        if (Runner.IsPaused)
-            Runner.SingleStepForward();
+        UserStepForward?.Invoke();
+        // if (!Runner.IsPaused) Runner.IsPaused = true;
+        // Runner.SingleStepForward();
     }
 
 
@@ -134,13 +123,13 @@ public abstract class Visualization
     /// trigger a call to <see cref="Update"/>.
     /// </remarks>
     /// <exception cref="InvalidOperationException">If this visualization hasn't been started yet.</exception>
-    public void StepBackward()
+    public void SingleStepBackward()
     {
-        if (!isStarted)
+        if (!HasStarted)
             throw new InvalidOperationException("Attempted to single-step a visualization that hasn't started yet.");
-
-        if (Runner.IsPaused)
-            Runner.SingleStepBackward();
+        UserStepBackward?.Invoke();
+        // if (!Runner.IsPaused) Runner.IsPaused = true;
+        // Runner.SingleStepBackward();
     }
 
 
@@ -150,9 +139,10 @@ public abstract class Visualization
     /// <exception cref="InvalidOperationException">If this visualization hasn't been started yet.</exception>
     public void Exit()
     {
-        if (!isStarted)
+        if (!HasStarted)
             throw new InvalidOperationException("Attempted to exit a visualization that hasn't been started yet.");
-        Runner.Exit();
-        Runner.Dispose();
+        UserExit?.Invoke();
     }
+
+    #endregion
 }
