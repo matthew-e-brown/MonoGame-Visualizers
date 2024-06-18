@@ -3,6 +3,8 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.0.31903.59
 MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Framework", "Framework\Framework.csproj", "{F7DAA08E-29F4-4A34-A0F7-4F6FA2E1E117}"
+EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EntityVisualizer", "EntityVisualizer\EntityVisualizer.csproj", "{E1704438-B7C4-44A8-B069-984829ADE8FB}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SortVisualizer", "SortVisualizer\SortVisualizer.csproj", "{41130490-6470-4413-8CCB-30DFB3D5B34E}"
@@ -18,6 +20,10 @@ Global
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{F7DAA08E-29F4-4A34-A0F7-4F6FA2E1E117}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F7DAA08E-29F4-4A34-A0F7-4F6FA2E1E117}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F7DAA08E-29F4-4A34-A0F7-4F6FA2E1E117}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F7DAA08E-29F4-4A34-A0F7-4F6FA2E1E117}.Release|Any CPU.Build.0 = Release|Any CPU
 		{E1704438-B7C4-44A8-B069-984829ADE8FB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{E1704438-B7C4-44A8-B069-984829ADE8FB}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E1704438-B7C4-44A8-B069-984829ADE8FB}.Release|Any CPU.ActiveCfg = Release|Any CPU
