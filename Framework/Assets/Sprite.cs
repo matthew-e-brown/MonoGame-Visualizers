@@ -1,13 +1,13 @@
-using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
-
 namespace TrentCOIS.Tools.Visualization.Assets;
 
+using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 
 /// <summary>
 /// A loaded texture combined with a <c>sourceRect</c> for drawing a selection from a larger spritesheet/texture atlas.
 /// </summary>
-public class Sprite : IDrawableImage
+/// <seealso cref="IAtlasTexture2D"/>
+public class Sprite : IAtlasTexture2D
 {
     /// <summary>
     /// This sprite's identifying name.
@@ -23,17 +23,6 @@ public class Sprite : IDrawableImage
     /// The bounds within the underlying <see cref="SourceTexture">spritesheet</see> that this sprite is drawn from.
     /// </summary>
     public Rectangle SourceBounds { get; }
-
-
-    /// <summary>
-    /// How wide this sprite will be when drawn on the screen.
-    /// </summary>
-    public int Width { get; set; }
-
-    /// <summary>
-    /// How tall this sprite will be when drawn on the screen.
-    /// </summary>
-    public int Height { get; set; }
 
 
     /// <summary>
@@ -55,8 +44,6 @@ public class Sprite : IDrawableImage
         Name = name;
         SourceTexture = sourceTex;
         SourceBounds = sourceBounds;
-        Width = SourceBounds.Width;
-        Height = SourceBounds.Height;
     }
 
 

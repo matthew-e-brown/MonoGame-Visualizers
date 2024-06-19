@@ -63,6 +63,8 @@ internal class GameRunner<V> : Game where V : Visualization
         VizRenderer = renderer;
 
         Graphics = new GraphicsDeviceManager(this);
+        IsMouseVisible = true;
+
         VizRenderer.Graphics = Graphics;
     }
 
@@ -81,9 +83,6 @@ internal class GameRunner<V> : Game where V : Visualization
         // important).
         base.Initialize();
         VizRenderer.Initialize(UserViz, UserViz.UserInput);
-
-        // Start with a dark gray screen.
-        Graphics.GraphicsDevice.Clear(new Color(14, 14, 14));
     }
 
 
@@ -158,8 +157,8 @@ internal class GameRunner<V> : Game where V : Visualization
     protected override void Draw(GameTime gameTime)
     {
         // Don't clear the screen: we let them handle that.
-        base.Draw(gameTime);                    // Components (if any) get updated first.
-        VizRenderer.Draw(UserViz, gameTime);    // Then the parent renderer does its stuff.
+        VizRenderer.Draw(UserViz, gameTime);
+        base.Draw(gameTime);
     }
 
     #endregion

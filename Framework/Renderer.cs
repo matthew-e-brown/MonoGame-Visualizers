@@ -103,6 +103,8 @@ public abstract class Renderer<V> where V : Visualization
         visualization.UserStepBackward += HandleUserStepBackward;
         visualization.UserExit += HandleUserExit;
 
+        visualization.UserInput.AttachToGame(runner);
+
         currentRunner = runner; // Keep reference so we can access methods.
         runner.Run();           // Run the game
         currentRunner = null;   // Ensure dispose runs properly (I don't trust it if we keep a reference around)
