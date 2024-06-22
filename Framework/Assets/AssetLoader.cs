@@ -85,7 +85,22 @@ public class AssetLoader
         // NB: `Assembly.Location` docs state that it is fully qualified already.
     }
 
+
     #region Font loading
+
+    /// <inheritdoc cref="LoadFont(IEnumerable{string})"/>
+    /// <exception cref="ArgumentException">If no parameters are provided.</exception>
+    public FontSystem LoadFont(params string[] fontFiles)
+    {
+        if (fontFiles.Length == 0)
+        {
+            var msg = $"{nameof(LoadFont)} requires at least one font file.";
+            throw new ArgumentException(msg, nameof(fontFiles));
+        }
+
+        return LoadFont((IEnumerable<string>)fontFiles);
+    }
+
 
     /// <summary>
     /// Creates a new <see cref="FontSystem"/>, which is a collection of one or more loaded files. A FontSystem can hold
@@ -98,7 +113,7 @@ public class AssetLoader
     /// <exception cref="AssetLoadException">
     /// If any of the provided files could not be read or parsed as a font.
     /// </exception>
-    public FontSystem LoadFont(params string[] fontFiles)
+    public FontSystem LoadFont(IEnumerable<string> fontFiles)
     {
         var fontSystem = new FontSystem(new FontSystemSettings()
         {
@@ -149,9 +164,16 @@ public class AssetLoader
     /// Gets a loaded texture image from <see cref="TexFileCache">cache</see> or loads it from disk.
     /// </summary>
     /// <param name="relPath">The image's path relative to <see cref="AssetBasePath"/>.</param>
-    protected Texture2D GetTexture(string relPath)
+    protected Texture2D GetTexture(string relPath) => GetTexture(relPath, AssetBasePath);
+
+    /// <summary>
+    /// <inheritdoc cref="GetTexture(string)" path="/summary"/>
+    /// </summary>
+    /// <param name="relPath">The image's path relative to <paramref name="basePath"/>.</param>
+    /// <param name="basePath">The path from which relative paths should be resolved.</param>
+    protected Texture2D GetTexture(string relPath, string basePath)
     {
-        var texPath = Path.GetFullPath(relPath, AssetBasePath);
+        var texPath = Path.GetFullPath(relPath, basePath);
         var texture = TexFileCache.GetValueOrDefault(texPath);
         if (texture is null)
         {
@@ -177,6 +199,20 @@ public class AssetLoader
     }
 
 
+    /// <inheritdoc cref="LoadSpriteGroups(IEnumerable{string})" />
+    /// <exception cref="ArgumentException">If no parameters are provided.</exception>
+    public Dictionary<string, Sprite> LoadSpriteGroups(params string[] xmlFiles)
+    {
+        if (xmlFiles.Length == 0)
+        {
+            var msg = $"{nameof(LoadSpriteGroups)} requires at least one XML file.";
+            throw new ArgumentException(msg, nameof(xmlFiles));
+        }
+
+        return LoadSpriteGroups((IEnumerable<string>)xmlFiles);
+    }
+
+
     /// <summary>
     /// Loads a group of sprites from an XML file.
     /// </summary>
@@ -197,14 +233,14 @@ public class AssetLoader
     /// <exception cref="AssetLoadException">
     /// If any invalid XML is found or if one of the files cannot be opened/read.
     /// </exception>
-    public Dictionary<string, Sprite> LoadSpriteGroups(params string[] xmlFiles)
+    public Dictionary<string, Sprite> LoadSpriteGroups(IEnumerable<string> xmlFiles)
     {
         var allSprites = new Dictionary<string, Sprite>();
 
         foreach (string path in xmlFiles)
         {
             var xmlPath = Path.GetFullPath(path, AssetBasePath);
-            var xmlRoot = XmlSpriteGroup.LoadFromFile(xmlPath);
+            var xmlRoot = XmlSpriteGroup.LoadFromFile(fullPath: xmlPath);
 
             int spriteCount = xmlRoot.CountTotal();
             allSprites.EnsureCapacity(allSprites.Count + spriteCount);
@@ -259,7 +295,7 @@ public class AssetLoader
             var finalInfo = spriteInfo.With(xmlSprite);
 
             var spriteTex = (finalInfo.FilePath is string texPath)
-                ? GetTexture(Path.GetFullPath(texPath, xmlBasePath))
+                ? GetTexture(texPath, xmlBasePath)
                 : throw new AssetLoadException("Encountered a <Sprite> with no ancestor FilePath attribute.");
 
             if (xmlSprite.Name is null)
@@ -287,6 +323,7 @@ public class AssetLoader
     #endregion
 
     #endregion
+
 
     #region Exception helpers
 
@@ -329,8 +366,8 @@ public class AssetLoader
     /// <summary>
     /// Reads all the bytes of a file and handles the re-throwing of exceptions.
     /// </summary>
-    /// <param name="fullPath"></param>
-    /// <returns></returns>
+    /// <param name="fullPath">The absolute path to the file.</param>
+    /// <returns>All of the bytes contained in the file.</returns>
     /// <exception cref="AssetLoadException">If anything goes wrong opening the file.</exception>
     protected internal static byte[] ReadFile(string fullPath)
     {
