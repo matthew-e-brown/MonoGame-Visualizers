@@ -1,16 +1,19 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
+  <!-- NuGet / Package stuff -->
   <PropertyGroup>
     <PackageId>TrentCOIS.Tools.Visualization.Framework</PackageId>
     <AssemblyName>TrentCOIS.VizFramework</AssemblyName>
-    <Version>0.1.0</Version>
+    <Version>0.1.1</Version>
 
     <RootNamespace>TrentCOIS.Tools.Visualization</RootNamespace>
 
     <Title>TrentCOIS Visualization Framework</Title>
     <Authors>Matthew Brown</Authors>
     <Company>Trent University</Company>
-    <Description>A basic visualization framework for .NET built on-top of MonoGame.</Description>
+    <Description>
+      A basic visualization framework for .NET built on-top of MonoGame.
+    </Description>
 
     <PackageTags>Education;MonoGame;Visualization</PackageTags>
     <PackageReadmeFile>README.md</PackageReadmeFile>
