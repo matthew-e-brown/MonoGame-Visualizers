@@ -58,6 +58,8 @@ public class InputManager
     protected internal bool IsAttachedToGame => ComponentInstance is not null;
 
 
+    #region Internal state
+
     /// <summary>The current state of the user's mouse.</summary>
     protected MouseState CurrMouse { get; private set; }
 
@@ -89,9 +91,13 @@ public class InputManager
     private int prevKeyCount;
 
     // Keeps track of when a given key is allowed to be pressed next.
-    // [FIXME] Switch this out with a more performant, index-based solution.
+    private KeyComparer keyComparer;
     private readonly Dictionary<Keys, TimeSpan> keyHoldTimers;
 
+    #endregion
+
+
+    #region Events
 
     /// <summary>
     /// This event is fired at the start of a frame once for each mouse button that was pressed on that frame.
@@ -118,33 +124,10 @@ public class InputManager
     /// </summary>
     public event MouseWheelEventHandler? MouseScroll;
 
+    #endregion
 
-    /// <summary>The X-coordinate of the mouse's current position.</summary>
-    public int MouseX => CurrMouse.X;
-    /// <summary>The Y-coordinate of the mouse's current position.</summary>
-    public int MouseY => CurrMouse.Y;
-    /// <summary>The mouse's current position.</summary>
-    public Point MousePos => CurrMouse.Position;
 
-    /// <summary>The X-coordinate of the mouse's position from the previous frame.</summary>
-    public int LastMouseX => PrevMouse.X;
-    /// <summary>The Y-coordinate of the mouse's position from the previous frame.</summary>
-    public int LastMouseY => PrevMouse.Y;
-    /// <summary>The mouse's position from the previous frame.</summary>
-    public Point LastMousePos => PrevMouse.Position;
-
-    /// <summary>How far the mouse moved left-to-right between this frame and the last frame.</summary>
-    public int MouseDeltaX => CurrMouse.X - PrevMouse.X;
-    /// <summary>How far the mouse moved up or down between this frame and the last frame.</summary>
-    public int MouseDeltaY => CurrMouse.Y - PrevMouse.Y;
-    /// <summary>How far the mouse moved between this frame and the last frame.</summary>
-    public (int, int) MouseDelta => (CurrMouse.X - PrevMouse.X, CurrMouse.Y - PrevMouse.Y);
-
-    /// <summary>How far the mouse-wheel was scrolled between this frame and the last frame.</summary>
-    public int ScrollDistance => CurrMouse.ScrollWheelValue - PrevMouse.ScrollWheelValue;
-    /// <summary>How far the mouse-wheel was scrolled side-to-side between this frame and the last.</summary>
-    public int ScrollDistanceHorizontal => CurrMouse.HorizontalScrollWheelValue - PrevMouse.HorizontalScrollWheelValue;
-
+    #region Constructor & setup
 
     /// <summary>
     /// Creates a new <see cref="InputManager"/>.
@@ -161,7 +144,8 @@ public class InputManager
         currKeyCount = 0;
         prevKeyCount = 0;
 
-        keyHoldTimers = new Dictionary<Keys, TimeSpan>(nKeys);
+        keyComparer = new KeyComparer();
+        keyHoldTimers = new Dictionary<Keys, TimeSpan>(nKeys, keyComparer);
     }
 
     /// <summary>
@@ -199,6 +183,8 @@ public class InputManager
         // Default is to do nothing.
     }
 
+    #endregion
+
 
     #region Update
 
@@ -227,7 +213,9 @@ public class InputManager
         HandleKeyboardEvents(gameTime.TotalGameTime);
     }
 
-
+    /// <summary>
+    /// Fires all the mouse events for the current frame.
+    /// </summary>
     private void HandleMouseEvents()
     {
         foreach (MouseButton button in allMouseValues)
@@ -245,14 +233,17 @@ public class InputManager
             MouseScroll?.Invoke(ScrollDistance, ScrollDistanceHorizontal);
     }
 
-
+    /// <summary>
+    /// Fires all the keyboard events for the current frame.
+    /// </summary>
+    /// <param name="currTime">The current <c>TotalGameTime</c>. Needed to time the repeated keypress events.</param>
     private void HandleKeyboardEvents(TimeSpan currTime)
     {
         // Sort the range based on the numerical value of the enum instead of the arbitrary-ish order of KeyboardState.
         // The prevPressed array is already sorted, since we copied it from the old version of this array at the start
         // of the frame. This operation should be fairly fast, since it's only sorting the sub-slice of keys that the
         // user is actually pressing right now.
-        currPressed.AsSpan(0, currKeyCount).Sort((a, b) => (int)a - (int)b);
+        currPressed.AsSpan(0, currKeyCount).Sort(keyComparer);
 
         int newIdx = 0; // index for new keys
         int oldIdx = 0; // index for old keys
@@ -312,7 +303,39 @@ public class InputManager
 
     #endregion
 
-    #region Mouse helpers
+
+    #region Public state getters
+
+    /// <summary>The X-coordinate of the mouse's current position.</summary>
+    public int MouseX => CurrMouse.X;
+    /// <summary>The Y-coordinate of the mouse's current position.</summary>
+    public int MouseY => CurrMouse.Y;
+    /// <summary>The mouse's current position.</summary>
+    public Point MousePos => CurrMouse.Position;
+
+    /// <summary>The X-coordinate of the mouse's position from the previous frame.</summary>
+    public int LastMouseX => PrevMouse.X;
+    /// <summary>The Y-coordinate of the mouse's position from the previous frame.</summary>
+    public int LastMouseY => PrevMouse.Y;
+    /// <summary>The mouse's position from the previous frame.</summary>
+    public Point LastMousePos => PrevMouse.Position;
+
+    /// <summary>How far the mouse moved left-to-right between this frame and the last frame.</summary>
+    public int MouseDeltaX => CurrMouse.X - PrevMouse.X;
+    /// <summary>How far the mouse moved up or down between this frame and the last frame.</summary>
+    public int MouseDeltaY => CurrMouse.Y - PrevMouse.Y;
+    /// <summary>How far the mouse moved between this frame and the last frame.</summary>
+    public (int, int) MouseDelta => (CurrMouse.X - PrevMouse.X, CurrMouse.Y - PrevMouse.Y);
+
+    /// <summary>How far the mouse-wheel was scrolled between this frame and the last frame.</summary>
+    public int ScrollDistance => CurrMouse.ScrollWheelValue - PrevMouse.ScrollWheelValue;
+    /// <summary>How far the mouse-wheel was scrolled side-to-side between this frame and the last.</summary>
+    public int ScrollDistanceHorizontal => CurrMouse.HorizontalScrollWheelValue - PrevMouse.HorizontalScrollWheelValue;
+
+    #endregion
+
+
+    #region Public mouse methods
 
     /// <summary>Checks whether or not the left mouse button is currently released (not being held down).</summary>
     /// <returns>
@@ -397,7 +420,7 @@ public class InputManager
 
     #endregion
 
-    #region Keyboard helpers
+    #region Public keyboard methods
 
     /// <summary>Checks whether or not a keyboard key is currently released (not being held down).</summary>
     /// <param name="key">The key to check.</param>
@@ -442,7 +465,7 @@ public class InputManager
 
     #endregion
 
-    #region Internals
+    #region Internal helper methods
 
     /// <summary>
     /// Queries whether or not a given mouse button is or was <see cref="ButtonState.Pressed">pressed</see>.
@@ -484,6 +507,24 @@ public class InputManager
         return state.IsKeyDown((Keys)key);
     }
 
+    #endregion
+
+    #region Child classes
+
+    /// <summary>
+    /// A comparer for <see cref="Key"/> and <see cref="Keys"/> to improve performance a bit (by avoiding boxing).
+    /// </summary>
+    /// <seealso href="https://stackoverflow.com/a/26281533/10549827"/>
+    private class KeyComparer : IComparer<Key>, IComparer<Keys>, IEqualityComparer<Key>, IEqualityComparer<Keys>
+    {
+        public int Compare(Key x, Key y) => (int)x - (int)y;
+        public int Compare(Keys x, Keys y) => (int)x - (int)y;
+
+        public bool Equals(Key x, Key y) => x == y;
+        public bool Equals(Keys x, Keys y) => x == y;
+        public int GetHashCode([DisallowNull] Key obj) => (int)obj;
+        public int GetHashCode([DisallowNull] Keys obj) => (int)obj;
+    }
 
     /// <summary>
     /// The actual implementation of the <see cref="GameComponent"/> interface provided by MonoGame.
