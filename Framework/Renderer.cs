@@ -9,7 +9,7 @@ using TrentCOIS.Tools.Visualization.Input;
 
 /// <summary>
 /// A level of abstraction for performing the actual drawing for a <see cref="Visualization"/>. Implementations of this
-/// interface may have their own internal state, so this class has its own <see cref="Update"/> method.
+/// interface may have their own internal state, so this class has its own <see cref="PreUpdate"/> method.
 /// </summary>
 ///
 /// <remarks>
@@ -162,12 +162,47 @@ public abstract class Renderer<V> where V : Visualization
     }
 
     /// <summary>
-    /// Called once per frame to update any internal state that this renderer may have for itself.
+    /// Called once per frame, before the user's <see cref="Visualization.Update(uint)"/> method, to update any internal
+    /// state that this renderer may have for itself, or to modify values within the user's visualization (i.e. before a
+    /// <see cref="Draw"/> occurs).
     /// </summary>
     /// <param name="userViz">A reference to the user's visualization.</param>
-    /// <param name="gameTime">The current game time.</param>
-    /// <param name="currentFrame">The current frame number/timestamp of the user's visualization to render.</param>
-    public virtual void Update(V userViz, GameTime gameTime, uint currentFrame)
+    /// <param name="gameTime">The current game time, directly from MonoGame.</param>
+    /// <param name="frameNum">The frame number of the user's visualization that is about to be processed.</param>
+    /// <param name="willDoUserUpdate">
+    /// Whether or not the user's <see cref="Visualization.Update"/> method will be called after this method is
+    /// complete (it is not called on every frame, see <see cref="FrameDelay"/>).
+    /// </param>
+    /// <remarks>
+    /// Both this method and <see cref="PostUpdate"/> occur entirely before <see cref="Draw"/>. They exist to provide
+    /// flexibility when implementing a visualization.
+    /// </remarks>
+    /// <seealso cref="PostUpdate(V, GameTime, uint, bool)"/>
+    /// <seealso cref="FrameDelay"/>
+    public virtual void PreUpdate(V userViz, GameTime gameTime, uint frameNum, bool willDoUserUpdate)
+    {
+        // Default implementation does nothing.
+    }
+
+    /// <summary>
+    /// Called once per frame, after the user's <see cref="Visualization.Update(uint)"/> method, to update any internal
+    /// state that this renderer may have for itself, or to modify values within the user's visualization (i.e. before a
+    /// <see cref="Draw"/> occurs).
+    /// </summary>
+    /// <param name="userViz">A reference to the user's visualization.</param>
+    /// <param name="gameTime">The current game time, directly from MonoGame.</param>
+    /// <param name="frameNum">The frame number of the user's visualization that was just processed.</param>
+    /// <param name="didUserUpdate">
+    /// Whether or not the user's <see cref="Visualization.Update"/> method was called before this method was called (it
+    /// is not called on every frame, see <see cref="FrameDelay"/>).
+    /// </param>
+    /// <remarks>
+    /// Both this method and <see cref="PreUpdate"/> occur entirely before <see cref="Draw"/>. They exist to provide
+    /// flexibility when implementing a visualization.
+    /// </remarks>
+    /// <seealso cref="PreUpdate(V, GameTime, uint, bool)"/>
+    /// <seealso cref="FrameDelay"/>
+    public virtual void PostUpdate(V userViz, GameTime gameTime, uint frameNum, bool didUserUpdate)
     {
         // Default implementation does nothing.
     }

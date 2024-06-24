@@ -2,6 +2,7 @@ namespace TrentCOIS.Tools.Visualization;
 
 using System;
 using Microsoft.Xna.Framework;
+using TrentCOIS.Tools.Visualization.Input;
 
 
 /// <summary>
@@ -124,15 +125,13 @@ internal class GameRunner<V> : Game where V : Visualization
         VizRenderer.HandleInput(UserViz, gameTime, UserViz.UserInput);
         UserViz.HandleInput(gameTime.TotalGameTime);
 
-        // Call user Update method
-        if (VizRenderer.IsPlaying && LastTickedTime + VizRenderer.FrameDelay <= currentTime)
-        {
-            CurrentFrame++;
-            DoUserUpdate();
-        }
+        bool doUserUpdate = VizRenderer.IsPlaying && LastTickedTime + VizRenderer.FrameDelay <= currentTime;
+        if (doUserUpdate) CurrentFrame++;
 
-        // Once the user's visualization is updated, update the renderer's state so it can draw it.
-        VizRenderer.Update(UserViz, gameTime, CurrentFrame);
+        VizRenderer.PreUpdate(UserViz, gameTime, CurrentFrame, doUserUpdate);
+        if (doUserUpdate) DoUserUpdate();
+        VizRenderer.PostUpdate(UserViz, gameTime, CurrentFrame, doUserUpdate);
+
         currentTime = null;
     }
 
