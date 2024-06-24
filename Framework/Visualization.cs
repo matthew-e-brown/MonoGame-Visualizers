@@ -34,7 +34,7 @@ public abstract class Visualization
 
 
     /// <summary>
-    /// This method is called automatically <b>once per tick</b> (i.e. based on the chosen frame-speed or when
+    /// This method is called automatically once <b>per tick</b> (i.e., based on the chosen frame-speed or when
     /// single-stepping). This is where your visualization's state should be updated.
     /// </summary>
     ///
@@ -51,8 +51,8 @@ public abstract class Visualization
 
 
     /// <summary>
-    /// This method is called automatically <b>once per frame,</b> and is where any logic that has to do with
-    /// interactivity should go.
+    /// This method is called automatically once <b>per frame</b> (as opposed to per <i>tick</i>), and is where any
+    /// logic that has to do with interactivity should go.
     /// </summary>
     /// <param name="time">The total amount of time that has passed since this visualization started running.</param>
     protected internal virtual void HandleInput(TimeSpan time)

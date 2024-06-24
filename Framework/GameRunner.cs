@@ -2,8 +2,6 @@ namespace TrentCOIS.Tools.Visualization;
 
 using System;
 using Microsoft.Xna.Framework;
-using TrentCOIS.Tools.Visualization.Input;
-
 
 /// <summary>
 /// Handles communicating with the underlying <see cref="Game">the MonoGame <c>Game</c> class</see>.
@@ -23,7 +21,7 @@ internal class GameRunner<V> : Game where V : Visualization
     /// <summary>
     /// The renderer used to render <see cref="UserViz"/>.
     /// </summary>
-    public Renderer<V> VizRenderer { get; set; }
+    public Renderer<V> Renderer { get; set; }
 
     /// <summary>
     /// The <see cref="GraphicsDeviceManager" /> for this <see cref="Game">MonoGame <c>Game</c></see> instance.
@@ -60,13 +58,12 @@ internal class GameRunner<V> : Game where V : Visualization
     /// </param>
     public GameRunner(V visualization, Renderer<V> renderer)
     {
-        UserViz = visualization;
-        VizRenderer = renderer;
-
         Graphics = new GraphicsDeviceManager(this);
         IsMouseVisible = true;
 
-        VizRenderer.Graphics = Graphics;
+        UserViz = visualization;
+        Renderer = renderer;
+        Renderer.Graphics = Graphics;
     }
 
 
@@ -78,12 +75,11 @@ internal class GameRunner<V> : Game where V : Visualization
         // Configure the main window
         Window.AllowUserResizing = false;
         Graphics.IsFullScreen = false;
-        ResizeWindow(VizRenderer.WindowWidth, VizRenderer.WindowHeight);
+        ResizeWindow(Renderer.WindowWidth, Renderer.WindowHeight);
 
-        // Unlike Load/Update/Draw, Initialization of our components comes *after* we setup our stuff (since it's
-        // important).
+        // Components initialization comes *after* we setup our window (since that's an important step).
         base.Initialize();
-        VizRenderer.Initialize(UserViz, UserViz.UserInput);
+        Renderer.Initialize(UserViz, UserViz.UserInput);
     }
 
 
@@ -106,7 +102,7 @@ internal class GameRunner<V> : Game where V : Visualization
     protected override void LoadContent()
     {
         base.LoadContent();
-        VizRenderer.LoadContent(UserViz);
+        Renderer.LoadContent(UserViz);
     }
 
 
@@ -120,17 +116,24 @@ internal class GameRunner<V> : Game where V : Visualization
     {
         currentTime = gameTime.TotalGameTime;
 
-        // Call the user's Input method after we update our components (i.e. the InputManager, since they need that).
-        base.Update(gameTime);
-        VizRenderer.HandleInput(UserViz, gameTime, UserViz.UserInput);
-        UserViz.HandleInput(gameTime.TotalGameTime);
+        base.Update(gameTime); // Update components (if any)
 
-        bool doUserUpdate = VizRenderer.IsPlaying && LastTickedTime + VizRenderer.FrameDelay <= currentTime;
+        // Check if we need to run the user's update method during this frame
+        bool doUserUpdate = Renderer.IsPlaying && LastTickedTime + Renderer.FrameDelay <= currentTime;
         if (doUserUpdate) CurrentFrame++;
 
-        VizRenderer.PreUpdate(UserViz, gameTime, CurrentFrame, doUserUpdate);
+        // Run input handling and updates, starting with renderer's input and PreUpdate phases
+        Renderer.UserInput.Update(gameTime);
+        Renderer.HandleInput(UserViz, gameTime, UserViz.UserInput);
+        Renderer.PreUpdate(UserViz, gameTime, CurrentFrame, doUserUpdate);
+
+        // Then the user's update
+        UserViz.UserInput.Update(gameTime);
+        UserViz.HandleInput(gameTime.TotalGameTime);
         if (doUserUpdate) DoUserUpdate();
-        VizRenderer.PostUpdate(UserViz, gameTime, CurrentFrame, doUserUpdate);
+
+        // Followed by our PostUpdate pass.
+        Renderer.PostUpdate(UserViz, gameTime, CurrentFrame, doUserUpdate); // Our post-update pass
 
         currentTime = null;
     }
@@ -155,9 +158,8 @@ internal class GameRunner<V> : Game where V : Visualization
     /// <param name="gameTime">The current game time.</param>
     protected override void Draw(GameTime gameTime)
     {
-        // Don't clear the screen: we let them handle that.
-        VizRenderer.Draw(UserViz, gameTime);
-        base.Draw(gameTime);
+        base.Draw(gameTime);                // Draw components (if any).
+        Renderer.Draw(UserViz, gameTime);   // Don't clear the screen: let the renderer handle that.
     }
 
     #endregion

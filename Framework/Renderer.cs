@@ -54,6 +54,11 @@ public abstract class Renderer<V> where V : Visualization
     /// <seealso cref="IsPaused"/>
     public bool IsPaused { get => !IsPlaying; set => IsPlaying = !value; }
 
+    /// <summary>
+    /// This renderer's own <see cref="InputManager"/> onto which it may attach events. This <see cref="InputManager"/>
+    /// is updated before the user's.
+    /// </summary>
+    protected internal InputManager UserInput { get; }
 
     /// <summary>
     /// Sets a reference to the graphics device manager.
@@ -72,6 +77,7 @@ public abstract class Renderer<V> where V : Visualization
     {
         Graphics = null!; // This is set by the internal renderer before initialization.
         IsPaused = true;
+        UserInput = new InputManager();
     }
 
 
@@ -166,6 +172,7 @@ public abstract class Renderer<V> where V : Visualization
     /// state that this renderer may have for itself, or to modify values within the user's visualization (i.e. before a
     /// <see cref="Draw"/> occurs).
     /// </summary>
+    ///
     /// <param name="userViz">A reference to the user's visualization.</param>
     /// <param name="gameTime">The current game time, directly from MonoGame.</param>
     /// <param name="frameNum">The frame number of the user's visualization that is about to be processed.</param>
@@ -173,10 +180,30 @@ public abstract class Renderer<V> where V : Visualization
     /// Whether or not the user's <see cref="Visualization.Update"/> method will be called after this method is
     /// complete (it is not called on every frame, see <see cref="FrameDelay"/>).
     /// </param>
+    ///
     /// <remarks>
-    /// Both this method and <see cref="PostUpdate"/> occur entirely before <see cref="Draw"/>. They exist to provide
-    /// flexibility when implementing a visualization.
+    /// <para>
+    /// The reason for both <see cref="PreUpdate"/> and <see cref="PostUpdate"/> to exist is simply to provide
+    /// flexibility when implementing a renderer.
+    /// </para>
+    ///
+    /// <para>
+    /// The full lifecycle of a frame is as follows:
+    /// <list type="number">
+    ///     <item>The renderer's <see cref="UserInput"/> is updated.</item>
+    ///     <item>The renderer's <see cref="HandleInput"/> method is called.</item>
+    ///     <item>The renderer's <see cref="PreUpdate"/> method is called.</item>
+    ///     <item>The user's <see cref="Visualization.UserInput"/> is updated.</item>
+    ///     <item>The user's <see cref="HandleInput"/> method is called.</item>
+    ///     <item>
+    ///         If applicable (see <see cref="FrameDelay"/>), the user's <see cref="Visualization.Update"/> method is
+    ///         called.
+    ///     </item>
+    ///     <item>The renderer's <see cref="PostUpdate"/> method is called.</item>
+    /// </list>
+    /// </para>
     /// </remarks>
+    ///
     /// <seealso cref="PostUpdate(V, GameTime, uint, bool)"/>
     /// <seealso cref="FrameDelay"/>
     public virtual void PreUpdate(V userViz, GameTime gameTime, uint frameNum, bool willDoUserUpdate)
@@ -189,6 +216,7 @@ public abstract class Renderer<V> where V : Visualization
     /// state that this renderer may have for itself, or to modify values within the user's visualization (i.e. before a
     /// <see cref="Draw"/> occurs).
     /// </summary>
+    ///
     /// <param name="userViz">A reference to the user's visualization.</param>
     /// <param name="gameTime">The current game time, directly from MonoGame.</param>
     /// <param name="frameNum">The frame number of the user's visualization that was just processed.</param>
@@ -196,10 +224,11 @@ public abstract class Renderer<V> where V : Visualization
     /// Whether or not the user's <see cref="Visualization.Update"/> method was called before this method was called (it
     /// is not called on every frame, see <see cref="FrameDelay"/>).
     /// </param>
+    ///
     /// <remarks>
-    /// Both this method and <see cref="PreUpdate"/> occur entirely before <see cref="Draw"/>. They exist to provide
-    /// flexibility when implementing a visualization.
+    /// <inheritdoc cref="PreUpdate(V, GameTime, uint, bool)" path="/remarks"/>
     /// </remarks>
+    ///
     /// <seealso cref="PreUpdate(V, GameTime, uint, bool)"/>
     /// <seealso cref="FrameDelay"/>
     public virtual void PostUpdate(V userViz, GameTime gameTime, uint frameNum, bool didUserUpdate)

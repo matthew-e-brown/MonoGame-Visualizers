@@ -209,7 +209,7 @@ public class InputManager
     /// Updates this component's internal state and fires any events.
     /// </summary>
     /// <param name="gameTime">The current game time.</param>
-    protected virtual void Update(GameTime gameTime)
+    protected internal virtual void Update(GameTime gameTime)
     {
         // Copy the current "current" state into the "previous" state before refreshing
         PrevMouse = CurrMouse;
