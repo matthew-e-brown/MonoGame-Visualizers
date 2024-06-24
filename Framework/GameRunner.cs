@@ -79,7 +79,7 @@ internal class GameRunner<V> : Game where V : Visualization
 
         // Components initialization comes *after* we setup our window (since that's an important step).
         base.Initialize();
-        Renderer.Initialize(UserViz, UserViz.UserInput);
+        Renderer.Initialize(UserViz);
     }
 
 
@@ -97,7 +97,7 @@ internal class GameRunner<V> : Game where V : Visualization
 
 
     /// <summary>
-    /// Runs at startup and whenever a graphics device reset occurs.
+    /// Runs at startup and (supposedly) whenever a graphics device reset occurs.
     /// </summary>
     protected override void LoadContent()
     {
@@ -129,7 +129,7 @@ internal class GameRunner<V> : Game where V : Visualization
 
         // Then the user's update
         UserViz.UserInput.Update(gameTime);
-        UserViz.HandleInput(gameTime.TotalGameTime);
+        UserViz.HandleInput(gameTime.ElapsedGameTime, gameTime.TotalGameTime);
         if (doUserUpdate) DoUserUpdate();
 
         // Followed by our PostUpdate pass.

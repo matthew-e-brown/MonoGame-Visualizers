@@ -27,7 +27,7 @@ public delegate void MouseWheelEventHandler(int vertical, int horizontal);
 
 
 /// <summary>
-/// A game component that handles tracking user input and provides several helpful utilities. These include several
+/// A MonoGame component that handles tracking user input and provides several helpful utilities. These include several
 /// methods for querying the current state of a key or mouse button,
 /// </summary>
 public class InputManager

@@ -19,8 +19,21 @@ public abstract class Visualization
     public bool HasStarted { get; internal set; }
 
     /// <summary>
-    /// An abstraction for the user's keyboard and mouse input.
+    /// Retrieves information about currently pressed keyboard keys, mouse buttons and position, and so on.
     /// </summary>
+    ///
+    /// <remarks>
+    /// <para>
+    /// This property may be accessed during the <see cref="HandleInput"/> method (or the <see cref="Update"/> method,
+    /// should it really by necessary) to query the current state of the user's input.
+    /// </para>
+    /// <para>
+    /// It may also be accessed during initialization (in your constructor) to listen for
+    /// <see href="https://learn.microsoft.com/en-us/dotnet/csharp/programming-guide/events/">events</see>,
+    /// should you be familiar with those. Note that these events will be fired <b>before</b> <see cref="HandleInput"/>
+    /// runs. See the documentation within <see cref="InputManager"/> for details.
+    /// </para>
+    /// </remarks>
     protected internal InputManager UserInput { get; }
 
 
@@ -34,16 +47,21 @@ public abstract class Visualization
 
 
     /// <summary>
-    /// This method is called automatically once <b>per tick</b> (i.e., based on the chosen frame-speed or when
-    /// single-stepping). This is where your visualization's state should be updated.
+    /// This method is called automatically on every frame. This is where your visualization/animation/game's state
+    /// should be updated.
     /// </summary>
     ///
-    /// <remarks>
-    /// Implementing this method is optional, since some visualizations may only wish to update when keys are pressed or
-    /// mice are clicked.
-    /// </remarks>
+    /// <param name="currentFrame">The current tick/frame number/timestamp.</param>
     ///
-    /// <param name="currentFrame">The number of the frame currently being processed.</param>
+    /// <remarks>
+    /// <para>
+    /// Overriding this method is optional, since some visualizations may only wish to update when keys are pressed or
+    /// mice are clicked.
+    /// </para>
+    /// <para>
+    /// The base implementation of this method does nothing.
+    /// </para>
+    /// </remarks>
     protected internal virtual void Update(uint currentFrame)
     {
         // Default implementation does nothing.
@@ -51,11 +69,25 @@ public abstract class Visualization
 
 
     /// <summary>
-    /// This method is called automatically once <b>per frame</b> (as opposed to per <i>tick</i>), and is where any
-    /// logic that has to do with interactivity should go.
+    /// This method is called automatically on every <b>real frame</b>. This is user-input (e.g., key presses and mouse
+    /// clicks) should be handled.
     /// </summary>
-    /// <param name="time">The total amount of time that has passed since this visualization started running.</param>
-    protected internal virtual void HandleInput(TimeSpan time)
+    ///
+    /// <param name="deltaTime">
+    /// How much real time has passed since the last time this method was called. Can be used to determine how far a
+    /// mouse has moved, for example.
+    /// </param>
+    /// <param name="totalTime">
+    /// The total amount of real time that has passed since this visualization started running.
+    /// </param>
+    ///
+    /// <remarks>
+    /// Since the visualization's speed is configurable with <see cref="Renderer{V}.FrameDelay"/> (and can even be
+    /// single-stepped) <see cref="Update"/> is not necessarily called on every single <b>frame;</b> it merely refers to
+    /// its ticks as "frames" for the sake of simplicity. User-input, however, needs to be handled at the full 60 FPS,
+    /// otherwise things will feel very sluggish (or, when paused/single-stepping, completely unresponsive).
+    /// </remarks>
+    protected internal virtual void HandleInput(TimeSpan deltaTime, TimeSpan totalTime)
     {
         // Default implementation does nothing.
     }

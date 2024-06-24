@@ -6,15 +6,39 @@ using System.Diagnostics.CodeAnalysis;
 using Microsoft.Xna.Framework;
 using TrentCOIS.Tools.Visualization.Input;
 
-
 /// <summary>
-/// A level of abstraction for performing the actual drawing for a <see cref="Visualization"/>. Implementations of this
-/// interface may have their own internal state, so this class has its own <see cref="PreUpdate"/> method.
+/// The base class for all visualization renderers. The student's code goes into a <see cref="Visualization"/>, which a
+/// simpler set of methods/properties; provided assignment code goes into a <see cref="Renderer{V}"/>, where
+/// <typeparamref name="V"/> is the name of the student's implementation of <see cref="Visualization"/>.
 /// </summary>
 ///
+/// <typeparam name="V">The class of visualization which this renderer knows how to draw to the screen.</typeparam>
+///
 /// <remarks>
-/// This interface is separate once again an effort to simplify the code given to students. This way, the rendering code
-/// for any given assignment can be tucked away elsewhere.
+/// <para>
+/// The full lifecycle of each frame is as follows.
+///
+/// <list type="number">
+///     <item>The renderer's <see cref="UserInput"/> is updated.</item>
+///     <item>The renderer's <see cref="HandleInput"/> method is called.</item>
+///     <item>The renderer's <see cref="PreUpdate"/> method is called.</item>
+///     <item>The user's <see cref="Visualization.UserInput"/> is updated.</item>
+///     <item>The user's <see cref="HandleInput"/> method is called.</item>
+///     <item>
+///         If applicable (see <see cref="FrameDelay"/>), the user's <see cref="Visualization.Update"/> method is
+///         called.
+///     </item>
+///     <item>The renderer's <see cref="PostUpdate"/> method is called.</item>
+/// </list>
+///
+/// After the above has completed, <see cref="Draw"/> is called. The user's <see cref="Visualization"/> has no
+/// <c>Draw</c> method.
+/// </para>
+///
+/// <para>
+/// Also note that the user has no <c>Initialize</c> method; their "game" initialization is expected to be done in the
+/// constructor.
+/// </para>
 /// </remarks>
 public abstract class Renderer<V> where V : Visualization
 {
@@ -23,11 +47,17 @@ public abstract class Renderer<V> where V : Visualization
     private int windowWidth = 1280;
     private int windowHeight = 720;
 
-    /// <summary>How wide the game window should be. Must be set before running the visualization.</summary>
+    /// <summary>
+    /// How wide the game window should be when it opens. This property may only be set during initialization.
+    /// See <see cref="ResizeWindow"/> for changing the window size after initialization.
+    /// </summary>
     /// <remarks>The default value is 1280 pixels.</remarks>
     public int WindowWidth { get => windowWidth; init => windowWidth = value; }
 
-    /// <summary>How tall the game window should be. Must be set before running the visualization.</summary>
+    /// <summary>
+    /// How tall the game window should be when it opens. This property may only be set during initialization.
+    /// See <see cref="ResizeWindow"/> for changing the window size after initialization.
+    /// </summary>
     /// <remarks>The default value is 720 pixels.</remarks>
     public int WindowHeight { get => windowHeight; init => windowHeight = value; }
 
@@ -51,21 +81,23 @@ public abstract class Renderer<V> where V : Visualization
     public bool IsPlaying { get; set; }
 
     /// <summary>Whether or not the visualization is currently paused.</summary>
-    /// <seealso cref="IsPaused"/>
+    /// <seealso cref="IsPlaying"/>
     public bool IsPaused { get => !IsPlaying; set => IsPlaying = !value; }
 
     /// <summary>
     /// This renderer's own <see cref="InputManager"/> onto which it may attach events. This <see cref="InputManager"/>
     /// is updated before the user's.
     /// </summary>
+    /// <seealso cref="PreUpdate"/>
     protected internal InputManager UserInput { get; }
 
     /// <summary>
-    /// Sets a reference to the graphics device manager.
+    /// Gets or sets a reference to the graphics device manager.
     /// </summary>
     /// <remarks>
-    /// Despite not being declared as nullable, this property <b>will be <c>null</c></b> until after
-    /// <see cref="Run(V)"/> is called. It is guaranteed to be non-null in all of the virtual methods of this class.
+    /// Despite not being declared as nullable, this property <b>will be <c>null</c> until after <see cref="Run(V)"/> is
+    /// called.</b> It is set internally once MonoGame has started, and is guaranteed to be non-null in all of the other
+    /// lifecycle methods of this class.
     /// </remarks>
     protected internal GraphicsDeviceManager Graphics { get; internal set; }
 
@@ -85,8 +117,8 @@ public abstract class Renderer<V> where V : Visualization
     /// Sets <see cref="WindowWidth"/> and <see cref="WindowHeight"/> at the same time. This is the only way to change
     /// the window size after the visualization has begun.
     /// </summary>
-    /// <param name="newWidth"></param>
-    /// <param name="newHeight"></param>
+    /// <param name="newWidth">The new width of the game window.</param>
+    /// <param name="newHeight">The new height of the game window.</param>
     protected void ResizeWindow(int newWidth, int newHeight)
     {
         windowWidth = newWidth;
@@ -109,11 +141,9 @@ public abstract class Renderer<V> where V : Visualization
         visualization.UserStepBackward += HandleUserStepBackward;
         visualization.UserExit += HandleUserExit;
 
-        visualization.UserInput.AttachToGame(runner);
-
         currentRunner = runner; // Keep reference so we can access methods.
-        runner.Run();           // Run the game
-        currentRunner = null;   // Ensure dispose runs properly (I don't trust it if we keep a reference around)
+        runner.Run();           // Run the game ("blocks" until Exit is called). GameRunner will call our other methods.
+        currentRunner = null;   // Release system resources (runner is using'd)
     }
 
 
@@ -137,8 +167,10 @@ public abstract class Renderer<V> where V : Visualization
     /// Sets up everything this renderer needs to render the user's visualization.
     /// </summary>
     /// <param name="userViz">A reference to the user's visualization.</param>
-    /// <param name="input">The input manager for the visualization, to establish event listeners.</param>
-    public virtual void Initialize(V userViz, InputManager input)
+    /// <remarks>
+    /// The base implementation of this method does nothing.
+    /// </remarks>
+    public virtual void Initialize(V userViz)
     {
         // Default implementation does nothing.
     }
@@ -159,6 +191,10 @@ public abstract class Renderer<V> where V : Visualization
     /// Note that this method <b>may be called more than once.</b> Specifically, it is called whenever the graphics
     /// device is re-initialized. This can occur when the user adds/removes an external display, when their laptop wakes
     /// up after going to sleep for a while, and so on.
+    /// </para>
+    ///
+    /// <para>
+    /// The base implementation of this method does nothing.
     /// </para>
     /// </remarks>
     /// <param name="userViz">A reference to the user's visualization.</param>
@@ -183,24 +219,11 @@ public abstract class Renderer<V> where V : Visualization
     ///
     /// <remarks>
     /// <para>
-    /// The reason for both <see cref="PreUpdate"/> and <see cref="PostUpdate"/> to exist is simply to provide
-    /// flexibility when implementing a renderer.
+    /// The reason for both <see cref="PreUpdate"/> and <see cref="PostUpdate"/> to exist is to provide flexibility when
+    /// implementing a renderer.
     /// </para>
-    ///
     /// <para>
-    /// The full lifecycle of a frame is as follows:
-    /// <list type="number">
-    ///     <item>The renderer's <see cref="UserInput"/> is updated.</item>
-    ///     <item>The renderer's <see cref="HandleInput"/> method is called.</item>
-    ///     <item>The renderer's <see cref="PreUpdate"/> method is called.</item>
-    ///     <item>The user's <see cref="Visualization.UserInput"/> is updated.</item>
-    ///     <item>The user's <see cref="HandleInput"/> method is called.</item>
-    ///     <item>
-    ///         If applicable (see <see cref="FrameDelay"/>), the user's <see cref="Visualization.Update"/> method is
-    ///         called.
-    ///     </item>
-    ///     <item>The renderer's <see cref="PostUpdate"/> method is called.</item>
-    /// </list>
+    /// The base implementation of this method does nothing.
     /// </para>
     /// </remarks>
     ///
@@ -225,9 +248,7 @@ public abstract class Renderer<V> where V : Visualization
     /// is not called on every frame, see <see cref="FrameDelay"/>).
     /// </param>
     ///
-    /// <remarks>
-    /// <inheritdoc cref="PreUpdate(V, GameTime, uint, bool)" path="/remarks"/>
-    /// </remarks>
+    /// <remarks><inheritdoc cref="PreUpdate(V, GameTime, uint, bool)" path="/remarks"/></remarks>
     ///
     /// <seealso cref="PreUpdate(V, GameTime, uint, bool)"/>
     /// <seealso cref="FrameDelay"/>
@@ -239,9 +260,14 @@ public abstract class Renderer<V> where V : Visualization
     /// <summary>
     /// Called once per frame to do any user-input handling that this renderer might want to do.
     /// </summary>
+    ///
     /// <param name="userViz">A reference to the user's visualization.</param>
     /// <param name="gameTime">The current game time.</param>
     /// <param name="input">The <see cref="InputManager"/> instance from the user's visualization.</param>
+    ///
+    /// <remarks>
+    /// The base implementation of this method does nothing.
+    /// </remarks>
     public virtual void HandleInput(V userViz, GameTime gameTime, InputManager input)
     {
         // Default implementation does nothing.
@@ -260,20 +286,20 @@ public abstract class Renderer<V> where V : Visualization
 
     /// <summary>
     /// The method that is run whenever the <see cref="Visualization.UserPause"/> event is fired. Its default behavior
-    /// is simply to call the <see cref="Pause">underlying control function</see>, but this can be overridden.
+    /// is simply to call the underlying control method, <see cref="Pause"/>.
     /// </summary>
     protected virtual void HandleUserPause() => Pause();
 
     /// <summary>
     /// The method that is run whenever the <see cref="Visualization.UserResume"/> event is fired. Its default behavior
-    /// is simply to call the <see cref="Resume">underlying control function</see>, but this can be overridden.
+    /// is simply to call the underlying control method, <see cref="Resume" />.
     /// </summary>
     protected virtual void HandleUserResume() => Resume();
 
     /// <summary>
     /// The method that is run whenever the <see cref="Visualization.UserStepForward"/> event is fired. Its default
-    /// behavior is simply to call the <see cref="StepForward">underlying control function</see> (if the renderer is
-    /// already paused), but this can be overridden.
+    /// behavior is to check if the renderer is currently paused, and if so, to call the underlying control method,
+    /// <see cref="StepForward"/>.
     /// </summary>
     protected virtual void HandleUserStepForward()
     {
@@ -282,8 +308,8 @@ public abstract class Renderer<V> where V : Visualization
 
     /// <summary>
     /// The method that is run whenever the <see cref="Visualization.UserStepBackward"/> event is fired. Its default
-    /// behavior is simply to call the <see cref="StepBackward">underlying control function</see> (if the renderer is
-    /// already paused), but this can be overridden.
+    /// behavior is to check if the renderer is currently paused, and if so, to call the underlying control method,
+    /// <see cref="StepBackward"/>.
     /// </summary>
     protected virtual void HandleUserStepBackward()
     {
@@ -292,7 +318,7 @@ public abstract class Renderer<V> where V : Visualization
 
     /// <summary>
     /// The method that is run whenever the <see cref="Visualization.UserExit"/> event is fired. Its default behavior is
-    /// simply to call the <see cref="Exit">underlying control function</see>, but this can be overridden.
+    /// simply to call the underlying control method, <see cref="Exit"/>.
     /// </summary>
     protected virtual void HandleUserExit() => Exit();
 
