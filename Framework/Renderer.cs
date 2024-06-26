@@ -48,18 +48,20 @@ public abstract class Renderer<V> where V : Visualization
     private int windowHeight = 720;
 
     /// <summary>
-    /// How wide the game window should be when it opens. This property may only be set during initialization.
-    /// See <see cref="ResizeWindow"/> for changing the window size after initialization.
+    /// How wide the game window should be when it opens.
     /// </summary>
     /// <remarks>The default value is 1280 pixels.</remarks>
-    public int WindowWidth { get => windowWidth; init => windowWidth = value; }
+    /// <seealso cref="Renderer(int, int)">To create a renderer with a given window size.</seealso>
+    /// <seealso cref="ResizeWindow">To change the size of the window.</seealso>
+    public int WindowWidth { get => windowWidth; }
 
     /// <summary>
-    /// How tall the game window should be when it opens. This property may only be set during initialization.
-    /// See <see cref="ResizeWindow"/> for changing the window size after initialization.
+    /// How tall the game window should be when it opens.
     /// </summary>
     /// <remarks>The default value is 720 pixels.</remarks>
-    public int WindowHeight { get => windowHeight; init => windowHeight = value; }
+    /// <seealso cref="Renderer(int, int)">To create a renderer with a given window size.</seealso>
+    /// <seealso cref="ResizeWindow">To change the size of the window.</seealso>
+    public int WindowHeight { get => windowHeight; }
 
 
     /// <summary>
@@ -75,6 +77,16 @@ public abstract class Renderer<V> where V : Visualization
         get => FrameDelay.Milliseconds;
         set => FrameDelay = new TimeSpan(value * TimeSpan.TicksPerMillisecond);
     }
+
+    /// <summary>
+    /// The current game frame, or the number of "ticks" that have elapsed since the start of the simulation.
+    /// </summary>
+    /// <remarks>
+    /// For most purposes, this counter is essentially 1-based. It starts at zero, but it is incremented before the
+    /// first time the user's <see cref="Visualization.Update"/> method is called. That way, tick number "zero" is the
+    /// one seen before any stepping occurs (or when stepping backwards into frame #0).
+    /// </remarks>
+    public uint CurrentFrame { get; internal set; } = 0;
 
     /// <summary>Whether or not the visualization is currently playing.</summary>
     /// <seealso cref="IsPaused"/>
@@ -112,6 +124,18 @@ public abstract class Renderer<V> where V : Visualization
         UserInput = new InputManager();
     }
 
+    /// <summary>
+    /// Creates a new <see cref="Renderer{V}"/> instance.
+    /// </summary>
+    /// <param name="windowWidth">How wide to make the window.</param>
+    /// <param name="windowHeight">How tall to make the window.</param>
+    /// <seealso cref="ResizeWindow">To change the size of the window after initialization.</seealso>
+    public Renderer(int windowWidth, int windowHeight) : this()
+    {
+        this.windowWidth = windowWidth;
+        this.windowHeight = windowHeight;
+    }
+
 
     /// <summary>
     /// Sets <see cref="WindowWidth"/> and <see cref="WindowHeight"/> at the same time. This is the only way to change
@@ -141,9 +165,16 @@ public abstract class Renderer<V> where V : Visualization
         visualization.UserStepBackward += HandleUserStepBackward;
         visualization.UserExit += HandleUserExit;
 
-        currentRunner = runner; // Keep reference so we can access methods.
-        runner.Run();           // Run the game ("blocks" until Exit is called). GameRunner will call our other methods.
-        currentRunner = null;   // Release system resources (runner is using'd)
+        try
+        {
+            currentRunner = runner; // Keep reference so we can access methods.
+            runner.Run();           // Run the game ("blocks" until Exit is called). GameRunner will call our methods.
+            currentRunner = null;   // Release system resources (runner is using'd)
+        }
+        finally
+        {
+            Cleanup();
+        }
     }
 
 
@@ -170,7 +201,7 @@ public abstract class Renderer<V> where V : Visualization
     /// <remarks>
     /// The base implementation of this method does nothing.
     /// </remarks>
-    public virtual void Initialize(V userViz)
+    protected internal virtual void Initialize(V userViz)
     {
         // Default implementation does nothing.
     }
@@ -198,7 +229,7 @@ public abstract class Renderer<V> where V : Visualization
     /// </para>
     /// </remarks>
     /// <param name="userViz">A reference to the user's visualization.</param>
-    public virtual void LoadContent(V userViz)
+    protected internal virtual void LoadContent(V userViz)
     {
         // Default implementation does nothing.
     }
@@ -211,7 +242,6 @@ public abstract class Renderer<V> where V : Visualization
     ///
     /// <param name="userViz">A reference to the user's visualization.</param>
     /// <param name="gameTime">The current game time, directly from MonoGame.</param>
-    /// <param name="frameNum">The frame number of the user's visualization that is about to be processed.</param>
     /// <param name="willDoUserUpdate">
     /// Whether or not the user's <see cref="Visualization.Update"/> method will be called after this method is
     /// complete (it is not called on every frame, see <see cref="FrameDelay"/>).
@@ -227,9 +257,9 @@ public abstract class Renderer<V> where V : Visualization
     /// </para>
     /// </remarks>
     ///
-    /// <seealso cref="PostUpdate(V, GameTime, uint, bool)"/>
+    /// <seealso cref="PostUpdate(V, GameTime, bool)"/>
     /// <seealso cref="FrameDelay"/>
-    public virtual void PreUpdate(V userViz, GameTime gameTime, uint frameNum, bool willDoUserUpdate)
+    protected internal virtual void PreUpdate(V userViz, GameTime gameTime, bool willDoUserUpdate)
     {
         // Default implementation does nothing.
     }
@@ -242,17 +272,16 @@ public abstract class Renderer<V> where V : Visualization
     ///
     /// <param name="userViz">A reference to the user's visualization.</param>
     /// <param name="gameTime">The current game time, directly from MonoGame.</param>
-    /// <param name="frameNum">The frame number of the user's visualization that was just processed.</param>
     /// <param name="didUserUpdate">
     /// Whether or not the user's <see cref="Visualization.Update"/> method was called before this method was called (it
     /// is not called on every frame, see <see cref="FrameDelay"/>).
     /// </param>
     ///
-    /// <remarks><inheritdoc cref="PreUpdate(V, GameTime, uint, bool)" path="/remarks"/></remarks>
+    /// <remarks><inheritdoc cref="PreUpdate(V, GameTime, bool)" path="/remarks"/></remarks>
     ///
-    /// <seealso cref="PreUpdate(V, GameTime, uint, bool)"/>
+    /// <seealso cref="PreUpdate(V, GameTime, bool)"/>
     /// <seealso cref="FrameDelay"/>
-    public virtual void PostUpdate(V userViz, GameTime gameTime, uint frameNum, bool didUserUpdate)
+    protected internal virtual void PostUpdate(V userViz, GameTime gameTime, bool didUserUpdate)
     {
         // Default implementation does nothing.
     }
@@ -263,12 +292,11 @@ public abstract class Renderer<V> where V : Visualization
     ///
     /// <param name="userViz">A reference to the user's visualization.</param>
     /// <param name="gameTime">The current game time.</param>
-    /// <param name="input">The <see cref="InputManager"/> instance from the user's visualization.</param>
     ///
     /// <remarks>
     /// The base implementation of this method does nothing.
     /// </remarks>
-    public virtual void HandleInput(V userViz, GameTime gameTime, InputManager input)
+    protected internal virtual void HandleInput(V userViz, GameTime gameTime)
     {
         // Default implementation does nothing.
     }
@@ -278,7 +306,20 @@ public abstract class Renderer<V> where V : Visualization
     /// </summary>
     /// <param name="userViz">A reference to the user's visualization.</param>
     /// <param name="gameTime">The current game time.</param>
-    public abstract void Draw(V userViz, GameTime gameTime);
+    /// <param name="didUserUpdate">
+    /// Whether or not the user's <see cref="Visualization.Update"/> method was called during this frame.
+    /// </param>
+    protected internal abstract void Draw(V userViz, GameTime gameTime, bool didUserUpdate);
+
+    /// <summary>
+    /// Called right before the underlying MonoGame instance exits. This provides a single place to perform any state
+    /// cleanup (e.g. un-redirecting the console) before control returns back to the user's main program. This method is
+    /// called in a <see langword="finally"/> block should any exceptions happen.
+    /// </summary>
+    protected internal virtual void Cleanup()
+    {
+        // Default implementation does nothing.
+    }
 
     #endregion
 
@@ -340,7 +381,7 @@ public abstract class Renderer<V> where V : Visualization
         if (!IsPaused)
             throw new InvalidOperationException("Renderer must be paused before single-stepping can occur.");
 
-        currentRunner.CurrentFrame++;
+        CurrentFrame++;
         currentRunner.DoUserUpdate();
     }
 
@@ -359,7 +400,7 @@ public abstract class Renderer<V> where V : Visualization
         if (!IsPaused)
             throw new InvalidOperationException("Renderer must be paused before single-stepping can occur.");
 
-        currentRunner.CurrentFrame--;
+        CurrentFrame--;
         currentRunner.DoUserUpdate();
     }
 

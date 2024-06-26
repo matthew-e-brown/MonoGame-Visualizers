@@ -28,18 +28,6 @@ internal class GameRunner<V> : Game where V : Visualization
     /// </summary>
     protected GraphicsDeviceManager Graphics { get; private set; }
 
-
-    /// <summary>
-    /// The current game frame, or the number of "ticks" that have elapsed since the start of the simulation.
-    /// </summary>
-    ///
-    /// <remarks>
-    /// For all intents and purposes, this counter is 1-based. It starts at zero, but it is incremented before the first
-    /// time the user's <see cref="Visualization.Update"/> method is called. That way, tick number "zero" is the one
-    /// seen before any stepping occurs.
-    /// </remarks>
-    public uint CurrentFrame { get; internal set; } = 0;
-
     /// <summary>
     /// The most recent time that <see cref="Visualization.Update"/> was called.
     /// </summary>
@@ -47,6 +35,9 @@ internal class GameRunner<V> : Game where V : Visualization
 
     // Used by methods to check/set the LastTickedTime even if they don't get it as a parameter.
     private TimeSpan? currentTime;
+
+    // Whether or not we did the user's update on this frame.
+    private bool didUserUpdate;
 
 
     /// <summary>
@@ -77,9 +68,12 @@ internal class GameRunner<V> : Game where V : Visualization
         Graphics.IsFullScreen = false;
         ResizeWindow(Renderer.WindowWidth, Renderer.WindowHeight);
 
-        // Components initialization comes *after* we setup our window (since that's an important step).
-        base.Initialize();
+        // Components initialization comes *after* we setup our window (since that's an important step). However, the
+        // renderer needs to run before base, since base.Initialize calls this.LoadContent, which in turn calls
+        // renderer.LoadContent (and at which point the renderer may have data it depends on in LoadContent be
+        // uninitialized).
         Renderer.Initialize(UserViz);
+        base.Initialize();
     }
 
 
@@ -101,8 +95,8 @@ internal class GameRunner<V> : Game where V : Visualization
     /// </summary>
     protected override void LoadContent()
     {
-        base.LoadContent();
         Renderer.LoadContent(UserViz);
+        base.LoadContent();
     }
 
 
@@ -120,12 +114,12 @@ internal class GameRunner<V> : Game where V : Visualization
 
         // Check if we need to run the user's update method during this frame
         bool doUserUpdate = Renderer.IsPlaying && LastTickedTime + Renderer.FrameDelay <= currentTime;
-        if (doUserUpdate) CurrentFrame++;
+        if (doUserUpdate) Renderer.CurrentFrame++;
 
         // Run input handling and updates, starting with renderer's input and PreUpdate phases
         Renderer.UserInput.Update(gameTime);
-        Renderer.HandleInput(UserViz, gameTime, UserViz.UserInput);
-        Renderer.PreUpdate(UserViz, gameTime, CurrentFrame, doUserUpdate);
+        Renderer.HandleInput(UserViz, gameTime);
+        Renderer.PreUpdate(UserViz, gameTime, doUserUpdate);
 
         // Then the user's update
         UserViz.UserInput.Update(gameTime);
@@ -133,8 +127,9 @@ internal class GameRunner<V> : Game where V : Visualization
         if (doUserUpdate) DoUserUpdate();
 
         // Followed by our PostUpdate pass.
-        Renderer.PostUpdate(UserViz, gameTime, CurrentFrame, doUserUpdate); // Our post-update pass
+        Renderer.PostUpdate(UserViz, gameTime, doUserUpdate); // Our post-update pass
 
+        didUserUpdate = doUserUpdate;
         currentTime = null;
     }
 
@@ -143,7 +138,7 @@ internal class GameRunner<V> : Game where V : Visualization
     {
         if (currentTime is not TimeSpan time)
             throw new InvalidOperationException("Called DoUserUpdate from outside of frame update.");
-        UserViz.Update(CurrentFrame);
+        UserViz.Update(Renderer.CurrentFrame);
         LastTickedTime = time;
     }
 
@@ -158,8 +153,8 @@ internal class GameRunner<V> : Game where V : Visualization
     /// <param name="gameTime">The current game time.</param>
     protected override void Draw(GameTime gameTime)
     {
-        base.Draw(gameTime);                // Draw components (if any).
-        Renderer.Draw(UserViz, gameTime);   // Don't clear the screen: let the renderer handle that.
+        base.Draw(gameTime);                                // Draw components (if any).
+        Renderer.Draw(UserViz, gameTime, didUserUpdate);    // Don't clear the screen: let the renderer handle that.
     }
 
     #endregion
