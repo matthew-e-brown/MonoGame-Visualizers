@@ -91,7 +91,7 @@ public class InputManager
     private int prevKeyCount;
 
     // Keeps track of when a given key is allowed to be pressed next.
-    private KeyComparer keyComparer;
+    private readonly KeyComparer keyComparer;
     private readonly Dictionary<Keys, TimeSpan> keyHoldTimers;
 
     #endregion
@@ -122,7 +122,7 @@ public class InputManager
     /// <summary>
     /// This event is fired at the start of a frame whenever the scroll-wheel has moved.
     /// </summary>
-    public event MouseWheelEventHandler? MouseScroll;
+    public event MouseWheelEventHandler? MouseScrolled;
 
     #endregion
 
@@ -229,8 +229,8 @@ public class InputManager
             }
         }
 
-        if (ScrollDistance > 0 || ScrollDistanceHorizontal > 0)
-            MouseScroll?.Invoke(ScrollDistance, ScrollDistanceHorizontal);
+        if (ScrollDistance != 0 || ScrollDistanceHorizontal != 0)
+            MouseScrolled?.Invoke(ScrollDistance, ScrollDistanceHorizontal);
     }
 
     /// <summary>
@@ -311,21 +311,21 @@ public class InputManager
     /// <summary>The Y-coordinate of the mouse's current position.</summary>
     public int MouseY => CurrMouse.Y;
     /// <summary>The mouse's current position.</summary>
-    public Point MousePos => CurrMouse.Position;
+    public Point MousePosition => CurrMouse.Position;
 
     /// <summary>The X-coordinate of the mouse's position from the previous frame.</summary>
     public int LastMouseX => PrevMouse.X;
     /// <summary>The Y-coordinate of the mouse's position from the previous frame.</summary>
     public int LastMouseY => PrevMouse.Y;
     /// <summary>The mouse's position from the previous frame.</summary>
-    public Point LastMousePos => PrevMouse.Position;
+    public Point LastMousePosition => PrevMouse.Position;
 
     /// <summary>How far the mouse moved left-to-right between this frame and the last frame.</summary>
     public int MouseDeltaX => CurrMouse.X - PrevMouse.X;
     /// <summary>How far the mouse moved up or down between this frame and the last frame.</summary>
     public int MouseDeltaY => CurrMouse.Y - PrevMouse.Y;
     /// <summary>How far the mouse moved between this frame and the last frame.</summary>
-    public (int, int) MouseDelta => (CurrMouse.X - PrevMouse.X, CurrMouse.Y - PrevMouse.Y);
+    public Point MouseDelta => new(CurrMouse.X - PrevMouse.X, CurrMouse.Y - PrevMouse.Y);
 
     /// <summary>How far the mouse-wheel was scrolled between this frame and the last frame.</summary>
     public int ScrollDistance => CurrMouse.ScrollWheelValue - PrevMouse.ScrollWheelValue;

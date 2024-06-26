@@ -136,15 +136,22 @@ public class AssetLoader
             else
             {
                 fontData = ReadFile(fullPath);
+
                 try
                 {
                     fontSystem.AddFont(fontData);
                 }
                 catch (Exception err)
                 {
-                    // [FIXME] FontStashSharp does not use any custom exception types, they just throw `Exception`. If that
-                    // ever changes, update this catch.
-                    throw new AssetLoadException($"Failed to load font data for font file `{fullPath}`.", err);
+                    // [FIXME] FontStashSharp does not use any custom exception types, just `Exception`. So we have no
+                    // choice but to catch-all for this single line. If that ever changes, update this catch.
+
+                    var fileName = Path.GetFileName(fullPath)!;
+                    var exception = new AssetLoadException($"Failed to load font data from `{fullPath}`.", err);
+                    exception.Data.Add("Base path for assets", AssetBasePath);
+                    exception.Data.Add("Specified path", relPath);
+                    exception.Data.Add("Resolved path", fullPath);
+                    throw exception;
                 }
 
                 // After success, cache the results.
@@ -231,23 +238,38 @@ public class AssetLoader
     /// this method more than once.
     /// </remarks>
     /// <exception cref="AssetLoadException">
-    /// If any invalid XML is found or if one of the files cannot be opened/read.
+    /// <para>If any invalid XML is found or if one of the files cannot be opened/read.</para>
+    /// -or-
+    /// <para>If two or more sprites share a fully-qualified name (after adding groups).</para>
     /// </exception>
     public Dictionary<string, Sprite> LoadSpriteGroups(IEnumerable<string> xmlFiles)
     {
         var allSprites = new Dictionary<string, Sprite>();
 
-        foreach (string path in xmlFiles)
+        foreach (string relPath in xmlFiles)
         {
-            var xmlPath = Path.GetFullPath(path, AssetBasePath);
-            var xmlRoot = XmlSpriteGroup.LoadFromFile(fullPath: xmlPath);
+            var xmlPath = Path.GetFullPath(relPath, AssetBasePath);
+            try
+            {
+                var xmlRoot = XmlSpriteGroup.LoadFromFile(fullPath: xmlPath);
 
-            int spriteCount = xmlRoot.CountTotal();
-            allSprites.EnsureCapacity(allSprites.Count + spriteCount);
+                int spriteCount = xmlRoot.CountTotal();
+                allSprites.EnsureCapacity(allSprites.Count + spriteCount);
 
-            var xmlInfo = new XmlSpriteInfo();
-            var dirPath = Path.GetDirectoryName(xmlPath)!; // non-null since we know it's a valid file
-            ParseXmlSpriteGroup(xmlRoot, dirPath, "", xmlInfo, ref allSprites);
+                var xmlInfo = new XmlSpriteInfo();
+                var dirPath = Path.GetDirectoryName(xmlPath)!; // non-null since we know it's a valid file
+                ParseXmlSpriteGroup(xmlRoot, dirPath, "", xmlInfo, ref allSprites);
+            }
+            catch (AssetLoadException inner)
+            {
+                // New exception so we can add path/filename information.
+                var fileName = Path.GetFileName(xmlPath)!;
+                var exception = new AssetLoadException($"Failed to load sprite data from `{xmlPath}`.", inner);
+                exception.Data.Add("Base path for assets", AssetBasePath);
+                exception.Data.Add("Specified path", relPath);
+                exception.Data.Add("Resolved path", xmlPath);
+                throw exception;
+            }
         }
 
         return allSprites;
@@ -271,7 +293,9 @@ public class AssetLoader
     /// <param name="spriteInfo">Common sprite information that is merged together while descending the tree.</param>
     /// <param name="loadedSprites">The dictionary to load sprites into.</param>
     /// <exception cref="AssetLoadException">
-    /// If any invalid XML is found or if one of the files cannot be opened/read.
+    /// <para>If any invalid XML is found or if one of the files cannot be opened/read.</para>
+    /// -or-
+    /// <para>If two or more sprites share a fully-qualified name (after adding groups).</para>
     /// </exception>
     private void ParseXmlSpriteGroup(
         XmlSpriteGroup group,
@@ -309,8 +333,12 @@ public class AssetLoader
                 finalInfo.H ?? spriteTex.Height
             );
 
+            var key = currentGroupName + xmlSprite.Name;
             var sprite = new Sprite(xmlSprite.Name, spriteTex, bounds);
-            loadedSprites.Add(currentGroupName + xmlSprite.Name, sprite);
+            if (!loadedSprites.TryAdd(key, sprite))
+            {
+                throw new AssetLoadException($"Encountered a duplicate <Sprite> name: {key}.");
+            }
         }
 
         // Now recurse with the child groups.

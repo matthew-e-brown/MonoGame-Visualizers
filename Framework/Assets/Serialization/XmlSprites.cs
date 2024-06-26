@@ -1,9 +1,10 @@
 namespace TrentCOIS.Tools.Visualization.Assets.Serialization;
 
 using System;
-using System.Collections.Generic;
-using System.Drawing;
+using System.IO;
+using System.Xml;
 using System.Xml.Serialization;
+using System.Collections.Generic;
 
 
 /// <summary>
@@ -136,29 +137,6 @@ public record XmlSpriteGroup : XmlSpriteInfo
 
 
     /// <summary>
-    /// Reads and deserializes an <see cref="XmlSpriteGroup"/> from an XML file.
-    /// </summary>
-    /// <param name="fullPath"></param>
-    /// <returns></returns>
-    /// <exception cref="AssetLoadException"></exception>
-    public static XmlSpriteGroup LoadFromFile(string fullPath)
-    {
-        using var stream = AssetLoader.OpenFile(fullPath);
-        var serializer = new XmlSerializer(typeof(XmlSpriteGroup));
-
-        if (serializer.Deserialize(stream) is XmlSpriteGroup parsed)
-        {
-            parsed.IsRoot = true;
-            return parsed;
-        }
-        else
-        {
-            throw new AssetLoadException($"Failed to parse Sprite XML data in file `{fullPath}`.");
-        }
-    }
-
-
-    /// <summary>
     /// Counts how many sprites are within this group and all sub-groups.
     /// </summary>
     /// <returns>The total number of sprites within this entire group.</returns>
@@ -175,5 +153,34 @@ public record XmlSpriteGroup : XmlSpriteInfo
         }
 
         return total;
+    }
+
+
+    /// <summary>
+    /// Reads and deserializes an <see cref="XmlSpriteGroup"/> from an XML file.
+    /// </summary>
+    /// <param name="fullPath">An absolute path to the XML file.</param>
+    /// <exception cref="AssetLoadException">If any serialization errors occur.</exception>
+    public static XmlSpriteGroup LoadFromFile(string fullPath)
+    {
+        try
+        {
+            using var stream = AssetLoader.OpenFile(fullPath);
+            var serializer = new XmlSerializer(typeof(XmlSpriteGroup));
+
+            if (serializer.Deserialize(stream) is XmlSpriteGroup parsed)
+            {
+                parsed.IsRoot = true;
+                return parsed;
+            }
+            else
+            {
+                throw new AssetLoadException("Failed to deserialize XML sprite data.");
+            }
+        }
+        catch (InvalidOperationException inner) when (inner.InnerException is XmlException)
+        {
+            throw new AssetLoadException("Failed to deserialize XML sprite data.", inner);
+        }
     }
 }

@@ -159,9 +159,9 @@ public class LineWriter : TextWriter
     {
         // If the builder currently ends with \n, remove that from the string version
         int len = builder.Length;
-        if (builder[len - 1] == '\n')
+        if (len >= 1 && builder[len - 1] == '\n')
         {
-            if (builder[len - 2] == '\r') len -= 2;
+            if (len >= 2 && builder[len - 2] == '\r') len -= 2;
             else len -= 1;
         }
 
