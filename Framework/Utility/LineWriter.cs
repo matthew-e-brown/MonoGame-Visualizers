@@ -99,11 +99,6 @@ public class LineWriter : TextWriter
 
     private void FinalizeLine()
     {
-        // A \n is now in the last spot in the buffer. Just in case, we get rid of any potential \r to make some math
-        // easier elsewhere.
-        int r = builder.Length - 2;
-        if (builder[r] == '\r') builder.Remove(r, 1);
-
         int newLen = builder.Length - lineStart;    // end - start = length of new line
         lineStart = builder.Length;                 // keep track of where the next line will start
         lengths.Enqueue(newLen);                    // save this new line's length
@@ -157,13 +152,13 @@ public class LineWriter : TextWriter
     /// </returns>
     public override string ToString()
     {
-        // If the builder currently ends with \n, remove that from the string version
+        // Remove the final trailing newline if present
         int len = builder.Length;
-        if (len >= 1 && builder[len - 1] == '\n')
-        {
-            if (len >= 2 && builder[len - 2] == '\r') len -= 2;
-            else len -= 1;
-        }
+        bool endsWithLF = len > 0 && builder[len - 1] == '\n';
+        bool endsWithCR = len > 1 && builder[len - 2] == '\r';
+
+        if (endsWithCR && endsWithLF) len -= 2;
+        else if (endsWithLF) len -= 1;
 
         return builder.ToString(0, len);
     }
