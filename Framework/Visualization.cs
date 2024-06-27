@@ -114,7 +114,7 @@ public abstract class Visualization
     public void Pause()
     {
         if (!HasStarted)
-            throw new InvalidOperationException("Attempted to resume a visualization that hasn't started yet.");
+            throw new InvalidOperationException("Attempted to pause a visualization that hasn't started yet.");
         UserPause?.Invoke();
     }
 
@@ -160,7 +160,7 @@ public abstract class Visualization
 
 
     /// <summary>
-    /// Stops visualization playback and closes the window. Program execution will continue after
+    /// Stops visualization playback and closes the window. Main program execution will continue afterwards.
     /// </summary>
     /// <exception cref="InvalidOperationException">If this visualization hasn't been started yet.</exception>
     public void Exit()

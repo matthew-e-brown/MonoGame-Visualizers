@@ -68,6 +68,8 @@ internal class GameRunner<V> : Game where V : Visualization
         Graphics.IsFullScreen = false;
         ResizeWindow(Renderer.WindowWidth, Renderer.WindowHeight);
 
+        UserViz.HasStarted = true;
+
         // Components initialization comes *after* we setup our window (since that's an important step). However, the
         // renderer needs to run before base, since base.Initialize calls this.LoadContent, which in turn calls
         // renderer.LoadContent (and at which point the renderer may have data it depends on in LoadContent be
