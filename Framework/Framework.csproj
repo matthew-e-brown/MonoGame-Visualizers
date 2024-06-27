@@ -4,7 +4,7 @@
   <PropertyGroup>
     <PackageId>TrentCOIS.Tools.Visualization.Framework</PackageId>
     <AssemblyName>TrentCOIS.VizFramework</AssemblyName>
-    <Version>0.1.2</Version>
+    <Version>0.1.3</Version>
 
     <RootNamespace>TrentCOIS.Tools.Visualization</RootNamespace>
 
